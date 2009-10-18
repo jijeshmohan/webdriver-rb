@@ -6,7 +6,9 @@ module WebDriver
   module Remote
 
     DEBUG = $VERBOSE == true
-
+    
+    COMMANDS = {}
+    
     #
     # Low level bridge to the remote server, through which the rest of the API works.
     # 
@@ -14,48 +16,13 @@ module WebDriver
     #
 
     class Bridge
-
-      CONTENT_TYPE_JSON = "application/json"
-
-      attr_accessor :context
-
-      #
-      # Initializes the bridge with the given server URL.
-      #
-      # @param server_url [String] base URL for all commands.  Note that a trailing '/' is very important!
-      #
-
-      def initialize(server_url)
-        @server_url = URI.parse(server_url)
-        @context    = "context"
-      end
-
-      def create_session
-        resp        = new_session()
-        @session_id = resp.session_id
-
-        Capabilities.json_create resp.value
-      end
-
-      #
-      # Returns the current session ID.
-      #
-
-      def session_id
-        @session_id || raise(StandardError, "no current session exists")
-      end
-
-      def switch_to_active_element
-        ids = get_active_element.value
-        if ids.empty?
-          nil
-        else
-          Element.new(self, ids[0])
-        end
-
-      end
-
-      protected
+      include Find
+      
+      DEFAULT_OPTIONS = {
+        :server_url           => "http://localhost:7055/",
+        :http_client          => DefaultHttpClient,
+        :desired_capabilities => Capabilities.firefox
+      }
 
       #
       # Defines a wrapper method for a command, which ultimately calls #invoke.
@@ -73,101 +40,347 @@ module WebDriver
       #
 
       def self.command(name, verb, url)
-        # get method arguments from the url (but never session_id and context)
-        args = url.scan(/:(\w+)/).flatten - %w(session_id context)
-        # convert url arguments to use string interpolation
-        url = url.gsub(/:(\w+)/) { "\#{#{$1}}" }
-
-        # post also commands accept an argument list which becomes the payload
-        if verb == :post
-          args << "*args"
-          optional = ", args"
-        end
-
-        #
-        # define a wrapper method.  the result should be such that:
-        #
-        # command :send_keys, "session/:session_id/:context/element/:id/value", :post
-        #
-        # creates:
-        #
-        # def send_keys(id, *args)
-        #   invoke(:post, "session/#{session_id}/#{context}/element/#{id}/value", args)
-        # end
-        #
-        #
-
-        class_eval <<-RUBY, __FILE__, __LINE__ + 1
-        def #{name}(#{args.join(", ")})
-          invoke(#{verb.inspect}, "#{url}"#{optional})
-        end
-        RUBY
+        COMMANDS[name] = [verb, url.freeze]
       end
 
+      attr_accessor :context, :http
+      attr_reader :capabilities
+
       #
-      # Invokes a command on the remote server via the REST / JSON API.
+      # Initializes the bridge with the given server URL.
       #
-      # @param verb [Symbol] one of :get, :post, :delete, etc.
-      # @param url [String] path portion of the url to access
-      # @param args [Array] array of arguments to the remote server when using POST or PUT
-      #
-      # @return [Response] the server response, if any; otherwise nil
-      #
-      # @raise Remote::Error if there is an error invoking the command
+      # @param server_url [String] base URL for all commands.  Note that a trailing '/' is very important!
       #
 
-      def invoke(verb, url, args = nil)
-        puts "-> #{verb.to_s.upcase} #{url}" if DEBUG
+      def initialize(opts = {})
+        opts          = DEFAULT_OPTIONS.merge(opts)
+        @context      = "context"
+        @server_url   = URI.parse(opts[:server_url])
+        @http         = opts[:http_client].new(@server_url)
+        @capabilities = create_session opts[:desired_capabilities]
+      end
+      
+      #
+      # Returns the current session ID.
+      #
 
-        # determine the appropriate headers, url, and payload
-        response = nil
-        url      = @server_url.merge(url) unless url.kind_of?(URI)
-        headers  = { "Accept" => CONTENT_TYPE_JSON }
+      def session_id
+        @session_id || raise(StandardError, "no current session exists")
+      end
+      
 
-        if args
-          headers.merge!({ "Content-Type" => CONTENT_TYPE_JSON + "; charset=utf-8" })
-          args = args.to_json
-          puts "  >>> #{args}" if DEBUG
-        end
+      def create_session(desired_capabilities)
+        resp  = raw_invoke :new_session, {}, desired_capabilities
+        @session_id = resp['sessionId'] || raise('no sessionId in returned payload')
+        Capabilities.json_create resp['value']
+      end
+      
+      def get(url)
+        invoke :get, {}, url
+      end
+      
+      def back
+        invoke :back
+      end
+      
+      def forward
+        invoke :forward
+      end
+      
+      def current_url
+        invoke :current_url
+      end
+      
+      def get_title
+        invoke :get_title
+      end
+      
+      def page_source
+        invoke :page_source
+      end
+      
+      def get_visible
+        invoke :get_visible
+      end
+      
+      def set_visible(bool)
+        invoke :set_visible, {}, bool
+      end
+      
+      def switch_to_window(name)
+        invoke :switch_to_window, :name => name
+      end
+      
+      def switch_to_frame(id)
+        invoke :switch_to_frame, :id => id
+      end
+      
+      def quit
+        invoke :quit
+      end
+      
+      def close
+        invoke :close
+      end
+      
+      def get_window_handles
+        invoke :get_window_handles
+      end
+      
+      def get_current_window_handle
+        invoke :get_current_window_handle
+      end
+      
+      def set_speed(value)
+        invoke :set_speed, {}, value
+      end
+      
+      def get_speed
+        invoke :get_speed
+      end
+      
+      def execute_script(script, *args)
+        raise UnsupportedOperationError, "underlying webdriver instace does not support javascript" unless capabilities.javascript_enabled?
 
-        # n.b.: assuming the host and port don't change, and am ignoring SSL for now
-        @http ||= Net::HTTP.new(url.host, url.port)
-
-        @http.request(Net::HTTP.const_get(verb.to_s.capitalize).new(url.path, headers), args) do |res|
-          response = case res
-          when Net::HTTPRedirection
-            # TODO: should be checking against a maximum redirect count
-            verb = :get
-            url = URI.parse(res["Location"])
-            args = nil
-            raise RetryException
-          when Net::HTTPNoContent
-            nil
-          when Net::HTTPSuccess
-            # construct the response object
-            puts "<- #{res.body}\n" if DEBUG
-            case res.content_type
-            when CONTENT_TYPE_JSON
-              data = JSON.parse(res.body)
-              raise ServerError.json_create(data) if data["error"]
-              Response.json_create(data)
-            else
-              raise RuntimeError, "unexpected response content type: #{res.content_type}"
-            end
-          else
-            puts "<- #{res.body}\n" if DEBUG
-            if res.content_type == CONTENT_TYPE_JSON
-              raise ServerError.json_create(JSON.parse(res.body))
-            else
-              raise RuntimeError, "status code: #{res.code}, body: #{res.body}"
-            end
+        # remote server requires type information for all arguments
+        typed_args = args.collect do |arg|
+          case arg
+          when Integer, Float
+            { :type => "NUMBER", :value => arg }
+          when TrueClass, FalseClass
+            { :type => "BOOLEAN", :value => arg }
+          when Element 
+            { :type => "ELEMENT", :value => arg.ref }
+          else 
+            { :type => "STRING", :value => arg.to_s }
           end
         end
 
-        response
-      rescue RetryException
-        retry
+        response = raw_invoke :execute_script, {}, script, typed_args
+        
+        # un-type the result value
+        result = response['value']
+        case result["type"]
+        when "ELEMENT"
+          Element.new(self, element_id_from(result["value"]))
+        else 
+          result["value"]
+        end
       end
+      
+      def add_cookie(cookie)
+        invoke :add_cookie, {}, cookie
+      end
+      
+      def delete_cookie(name)
+        invoke :delete_cookie, :name => name
+      end
+      
+      def get_all_cookies
+        invoke :get_all_cookies
+      end
+      
+      def delete_all_cookies
+        invoke :delete_all_cookies
+      end
+      
+      def find_element_by_class_name(parent, class_name)
+        find_element_by 'class name', class_name, parent
+      end
+
+      def find_elements_by_class_name(parent, class_name)
+        find_elements_by 'class name', class_name, parent
+      end
+
+      def find_element_by_id(parent, id)
+        find_element_by 'id', id, parent
+      end
+
+      def find_elements_by_id(parent, id)
+        find_elements_by 'id', id, parent
+      end
+
+      def find_element_by_link_text(parent, link_text)
+        find_element_by 'link text', link_text, parent
+      end
+
+      def find_elements_by_link_text(parent, link_text)
+        find_elements_by 'link text', link_text, parent
+      end
+
+      def find_element_by_partial_link_text(parent, link_text)
+        find_element_by 'partial link text', link_text, parent
+      end
+
+      def find_elements_by_partial_link_text(parent, link_text)
+        find_elements_by 'partial link text', link_text, parent
+      end
+
+      def find_element_by_name(parent, name)
+        find_element_by 'name', name, parent
+      end
+
+      def find_elements_by_name(parent, name)
+        find_elements_by 'name', name, parent
+      end
+
+      def find_element_by_tag_name(parent, tag_name)
+        find_element_by 'tag name', tag_name, parent
+      end
+
+      def find_elements_by_tag_name(parent, tag_name)
+        find_elements_by 'tag name', tag_name, parent
+      end
+
+      def find_element_by_xpath(parent, xpath)
+        find_element_by 'xpath', xpath, parent
+      end
+
+      def find_elements_by_xpath(parent, xpath)
+        find_elements_by 'xpath', xpath, parent
+      end
+
+
+      #
+      # Element functions
+      # 
+
+      def click_element(element)
+        invoke :click_element, :id => element
+      end
+
+      def get_element_tag_name(element)
+        invoke :get_tag_name, :id => element
+      end
+
+      def get_element_attribute(element, name)
+        invoke :get_element_attribute, :id => element, :name => name
+      end
+
+      def get_element_value(element)
+        invoke :get_element_value, :id => element
+      end
+
+      def get_element_text(element)
+        invoke :get_element_text, :id => element
+      end
+
+      def get_element_location(element)
+        data = invoke :get_element_location, :id => element
+        Point.new data['x'], data['y']
+      end
+
+      def get_element_size(element)
+        invoke :get_element_size, :id => element
+      end
+      
+      def send_keys(element, string)
+        invoke :send_keys, {:id => element}, {:value => string.split(//u)} 
+      end
+
+      def clear_element(element)
+        invoke :clear_element, :id => element
+      end
+
+      def is_element_enabled(element)
+        invoke :is_element_enabled, :id => element
+      end
+
+      def is_element_selected(element)
+        invoke :is_element_selected, :id => element
+      end
+
+      def is_element_displayed(element)
+        invoke :is_element_displayed, :id => element
+      end
+
+      def submit_element(element)
+        invoke :submit_element, :id => element
+      end
+
+      def toggle_element(element)
+        invoke :toggle_element, :id => element
+      end
+      
+      def set_element_selected(element)
+        invoke :set_element_selected, :id => element
+      end
+
+      def get_value_of_css_property(element, prop)
+        invoke :get_value_of_css_property, :id => element, :property_name => prop
+      end
+      
+      def get_active_element
+        id = invoke :get_active_element
+        Element.new self, element_id_from(id)
+      end
+      alias_method :switch_to_active_element, :get_active_element
+
+      def hover
+        invoke :hover, :id => element
+      end
+
+      private
+      
+      def find_element_by(how, what, parent = nil)
+        if parent
+          id = invoke :find_element_using_element, {:id => parent, :using => how}, {:using => how, :value => what}
+        else
+          id = invoke :find_element, {}, how, what
+        end
+        
+        Element.new self, element_id_from(id)
+      end
+      
+      def find_elements_by(how, what, parent = nil)
+        if parent
+          ids = invoke :find_elements_using_element, {:id => parent, :using => how}, {:using => how, :value => what}
+        else
+          ids = invoke :find_elements, {}, how, what
+        end
+        
+        ids.map { |id| Element.new self, element_id_from(id) }
+      end
+      
+      
+      #
+      # Invokes a command on the remote server via the REST / JSON API.
+      #
+      #
+      # Returns the 'value' of the returned payload
+      # 
+      
+      def invoke(*args)
+        raw_invoke(*args)['value']
+      end
+      
+      #
+      # Invokes a command on the remote server via the REST / JSON API.
+      #
+      # Returns a WebDriver::Remote::Response instance
+      #
+      
+      def raw_invoke(command, opts = {}, *args)
+        verb, path = COMMANDS[command] || raise("Unknown command #{command.inspect}")
+        path       = path.dup
+        
+        path[':session_id'] = @session_id if path.include?(":session_id")
+        path[':context']    = @context if path.include?(":context")
+        
+        begin
+          opts.each { |key, value| path[key.inspect] = value }
+        rescue IndexError
+          raise ArgumentError, "#{opts.inspect} invalid for #{command.inspect}"
+        end
+        
+        puts "-> #{verb.to_s.upcase} #{path}" if DEBUG
+        http.call verb, path, *args
+      end
+      
+      def element_id_from(arr)
+        arr.first.split("/").last
+      end
+
 
     end # Bridge
   end # Remote

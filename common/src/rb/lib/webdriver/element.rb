@@ -4,21 +4,17 @@ module WebDriver
   # The WebElement interface
   # 
   
-  class CommonElement
+  class Element
     include Find
     
-    attr_reader :parent
+    attr_reader :bridge
 
-    def initialize(parent, id)
-      @parent, @id = parent, id
+    def initialize(bridge, id)
+      @bridge, @id = bridge, id
     end
     
     def ref
       @id
-    end
-
-    def bridge
-      @parent
     end
 
     def click
@@ -39,10 +35,6 @@ module WebDriver
 
     def text
       bridge.get_element_text @id
-    end
-
-    def value
-      attribute(:value).gsub("\r\n", "\n")
     end
 
     def send_keys(*args)
@@ -94,11 +86,11 @@ module WebDriver
     end
 
     def drag_and_drop_by(right_by, down_by)
-      raise NotImplementedError
+      bridge.drag_and_drop_by @id, right_by, down_by
     end
 
     def drag_and_drop_on(other)
-      raise NotImplementedError
+      bridge.drag_and_drop_on @id, other
     end
 
   end # Element

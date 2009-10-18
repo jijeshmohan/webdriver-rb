@@ -41,7 +41,7 @@ module WebDriver
       def create_element(&blk)
         element_ptr_ref = FFI::MemoryPointer.new :pointer
         yield element_ptr_ref
-        CommonElement.new(self, element_ptr_ref.get_pointer(0))
+        Element.new(self, element_ptr_ref.get_pointer(0))
       ensure
         element_ptr_ref.free
       end

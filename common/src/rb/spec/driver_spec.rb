@@ -25,7 +25,7 @@ describe "Driver" do
     it "should find by id" do
       driver.navigate.to Page.xhtml
       element = driver.find_element(:id, "id1")
-      element.should be_kind_of(WebDriver::CommonElement)
+      element.should be_kind_of(WebDriver::Element)
       element.text.should == "Foo"
     end
 
@@ -96,7 +96,7 @@ describe "Driver" do
     it "should return elements" do
       driver.navigate.to Page.xhtml
       element = driver.execute_script("return document.getElementById('id1');")
-      element.should be_kind_of(WebDriver::CommonElement)
+      element.should be_kind_of(WebDriver::Element)
       element.text.should == "Foo"
     end
 

@@ -1,8 +1,6 @@
 module WebDriver::IE
   class Bridge
     include Util
-
-    attr_reader :driver_pointer
     
     def initialize
       ptr_ref = FFI::MemoryPointer.new :pointer
@@ -14,34 +12,34 @@ module WebDriver::IE
     end
     
     def get(url)
-      check_error_code Lib.wdGet(driver_pointer, wstring_ptr(url)), 
+      check_error_code Lib.wdGet(@driver_pointer, wstring_ptr(url)), 
                        "Cannot get url #{url.inspect}"
     end
     
     def current_url
       create_string do |wrapper|
-        check_error_code Lib.wdGetCurrentUrl(driver_pointer, wrapper), 
+        check_error_code Lib.wdGetCurrentUrl(@driver_pointer, wrapper), 
                          "Unable to get current URL"
       end
     end
     
     def get_title
       create_string do |wrapper|
-        check_error_code Lib.wdGetTitle(driver_pointer, wrapper),
+        check_error_code Lib.wdGetTitle(@driver_pointer, wrapper),
                          "Unable to get title"
       end
     end
     
     def page_source
       create_string do |wrapper|
-        check_error_code Lib.wdGetPageSource(driver_pointer, wrapper),
+        check_error_code Lib.wdGetPageSource(@driver_pointer, wrapper),
                          "Unable to get page source"
       end
     end
     
     def get_visible
       int_ptr = FFI::MemoryPointer.new :int
-      check_error_code Lib.wdGetVisible(driver_pointer, int_ptr), "Unable to determine if browser is visible"
+      check_error_code Lib.wdGetVisible(@driver_pointer, int_ptr), "Unable to determine if browser is visible"
       
       int_ptr.get_int(0) == 1
     ensure
@@ -50,23 +48,23 @@ module WebDriver::IE
     
     def set_visible(bool)
       raise NotImplementedError, "function doesn't exist in the current prebuilt DLL?"
-      check_error_code Lib.wdSetVisible(driver_pointer, bool ? 1 : 0), 
+      check_error_code Lib.wdSetVisible(@driver_pointer, bool ? 1 : 0), 
                        "Unable to change the visibility of the browser"
     end
     
     def switch_to_window(id)
-      check_error_code Lib.wdSwitchToWindow(driver_pointer, wstring_ptr(id)), 
+      check_error_code Lib.wdSwitchToWindow(@driver_pointer, wstring_ptr(id)), 
                        "Unable to locate window #{id.inspect}"
     end
     
     def switch_to_frame(id)
-      check_error_code Lib.wdSwitchToFrame(driver_pointer, wstring_ptr(id)), 
+      check_error_code Lib.wdSwitchToFrame(@driver_pointer, wstring_ptr(id)), 
                        "Unable to locate frame #{id.inspect}"
     end
 
     def switch_to_active_element
       create_element do |ptr|
-        check_error_code Lib.wdSwitchToActiveElement(driver_pointer, ptr), 
+        check_error_code Lib.wdSwitchToActiveElement(@driver_pointer, ptr), 
                          "Unable to switch to active element"
       end
     end
@@ -79,17 +77,17 @@ module WebDriver::IE
 
       # TODO: ObjectSpace.each_object(WebDriver::IE::Element) { |e| e.finalize }
     ensure
-      Lib.wdFreeDriver(driver_pointer)
-      driver_pointer = nil
+      Lib.wdFreeDriver(@driver_pointer)
+      @driver_pointer = nil
     end
     
     def close
-      check_error_code Lib.wdClose(driver_pointer), "Unable to close driver"
+      check_error_code Lib.wdClose(@driver_pointer), "Unable to close driver"
     end
     
     def get_window_handles
       raw_handles = FFI::MemoryPointer.new :pointer
-      check_error_code Lib.wdGetAllWindowHandles(driver_pointer, raw_handles),
+      check_error_code Lib.wdGetAllWindowHandles(@driver_pointer, raw_handles),
                        "Unable to obtain all window handles"
                        
       string_array_from(raw_handles).uniq
@@ -98,7 +96,7 @@ module WebDriver::IE
     
     def get_current_window_handle
       create_string do |string_pointer|
-        check_error_code Lib.wdGetCurrentWindowHandle(driver_pointer, string_pointer), 
+        check_error_code Lib.wdGetCurrentWindowHandle(@driver_pointer, string_pointer), 
                          "Unable to obtain current window handle (#{result})"
       end
     end
@@ -108,7 +106,7 @@ module WebDriver::IE
     end
     
     def wait_for_load_to_complete
-      Lib.wdWaitForLoadToComplete(driver_pointer)
+      Lib.wdWaitForLoadToComplete(@driver_pointer)
     end
     
     #
@@ -135,7 +133,7 @@ module WebDriver::IE
       # TODO: argument checks
 
       create_element do |raw_element|
-        check_error_code Lib.wdFindElementByClassName(driver_pointer, parent, wstring_ptr(class_name), raw_element),
+        check_error_code Lib.wdFindElementByClassName(@driver_pointer, parent, wstring_ptr(class_name), raw_element),
                          "Unable to find element by class name using #{class_name.inspect}"
       end
     end
@@ -144,84 +142,84 @@ module WebDriver::IE
       # TODO: argument checks
       
       create_element_collection do |raw_elements|
-        check_error_code Lib.wdFindElementsByClassName(driver_pointer, parent, wstring_ptr(class_name), raw_elements),
+        check_error_code Lib.wdFindElementsByClassName(@driver_pointer, parent, wstring_ptr(class_name), raw_elements),
                          "Unable to find elements by class name using #{class_name.inspect}"
       end
     end
     
     def find_element_by_id(parent, id)
       create_element do |raw_element|
-        check_error_code Lib.wdFindElementById(driver_pointer, parent, wstring_ptr(id), raw_element),
+        check_error_code Lib.wdFindElementById(@driver_pointer, parent, wstring_ptr(id), raw_element),
                          "Unable to find element by id using #{id.inspect}"
       end
     end
 
     def find_elements_by_id(parent, id)
       create_element_collection do |raw_elements|
-        check_error_code Lib.wdFindElementsById(driver_pointer, parent, wstring_ptr(id), raw_elements),
+        check_error_code Lib.wdFindElementsById(@driver_pointer, parent, wstring_ptr(id), raw_elements),
                          "Unable to find elements by id using #{id.inspect}"  
       end
     end
 
     def find_element_by_link_text(parent, link_text)
       create_element do |raw_element|
-        check_error_code Lib.wdFindElementByLinkText(driver_pointer, parent, wstring_ptr(link_text), raw_element),
+        check_error_code Lib.wdFindElementByLinkText(@driver_pointer, parent, wstring_ptr(link_text), raw_element),
                          "Unable to find element by link text using #{link_text.inspect}"
       end
     end
 
     def find_elements_by_link_text(parent, link_text)
       create_element_collection do |raw_elements|
-        check_error_code Lib.wdFindElementsByLinkText(driver_pointer, parent, wstring_ptr(link_text), raw_elements),
+        check_error_code Lib.wdFindElementsByLinkText(@driver_pointer, parent, wstring_ptr(link_text), raw_elements),
                          "Unable to find elements by link text using #{link_text.inspect}"
       end
     end
 
     def find_element_by_partial_link_text(parent, link_text)
       create_element do |raw_element|
-        check_error_code Lib.wdFindElementByPartialLinkText(driver_pointer, parent, wstring_ptr(link_text), raw_element),
+        check_error_code Lib.wdFindElementByPartialLinkText(@driver_pointer, parent, wstring_ptr(link_text), raw_element),
                          "Unable to find element by partial link text using #{link_text.inspect}"
       end
     end
 
     def find_elements_by_partial_link_text(parent, link_text)
       create_element_collection do |raw_elements|
-        check_error_code Lib.wdFindElementsByPartialLinkText(driver_pointer, parent, wstring_ptr(link_text), raw_elements),
+        check_error_code Lib.wdFindElementsByPartialLinkText(@driver_pointer, parent, wstring_ptr(link_text), raw_elements),
                          "Unable to find elements by partial link text using #{link_text.inspect}"
       end
     end
     
     def find_element_by_name(parent, name)
       create_element do |raw_element|
-        check_error_code Lib.wdFindElementByName(driver_pointer, parent, wstring_ptr(name), raw_element),
+        check_error_code Lib.wdFindElementByName(@driver_pointer, parent, wstring_ptr(name), raw_element),
                          "Unable to find element by name using #{name.inspect}"
       end
     end
 
     def find_elements_by_name(parent, name)
       create_element_collection do |raw_elements| 
-        check_error_code Lib.wdFindElementsByName(driver_pointer, parent, wstring_ptr(name), raw_elements),
+        check_error_code Lib.wdFindElementsByName(@driver_pointer, parent, wstring_ptr(name), raw_elements),
                          "Unable to find elements by name using #{name.inspect}"
       end
     end
 
     def find_element_by_tag_name(parent, tag_name)
       create_element do |raw_element|
-        check_error_code Lib.wdFindElementByTagName(driver_pointer, parent, wstring_ptr(tag_name), raw_element),
+        check_error_code Lib.wdFindElementByTagName(@driver_pointer, parent, wstring_ptr(tag_name), raw_element),
                          "Unable to find element by tag name using #{tag_name.inspect}"
       end
     end
     
     def find_elements_by_tag_name(parent, tag_name)
       create_element_collection do |raw_elements|
-        check_error_code Lib.wdFindElementsByTagName(driver_pointer, parent, wstring_ptr(tag_name), raw_element),
+        check_error_code Lib.wdFindElementsByTagName(@driver_pointer, parent, wstring_ptr(tag_name), raw_element),
                          "Unable to find elements by tag name using #{tag_name.inspect}"
       end
     end
     
     def find_element_by_xpath(parent, xpath)
       create_element do |raw_element|
-        check_error_code Lib.wdFindElementByXPath(driver_pointer, parent, wstring_ptr(xpath), raw_element),
+        check_error_code Lib.wdFindElementByXPath(@driver_pointer, parent, wstring_ptr(xpath), raw_element),
                          "Unable to find element by xpath using #{xpath.inspect}"
         # TODO: Additional error handling
       end
@@ -229,7 +227,7 @@ module WebDriver::IE
     
     def find_elements_by_xpath(parent, xpath)
       create_element_collection do |raw_elements|
-        check_error_code Lib.wdFindElementsByXPath(driver_pointer, parent, wstring_ptr(xpath), raw_elements),
+        check_error_code Lib.wdFindElementsByXPath(@driver_pointer, parent, wstring_ptr(xpath), raw_elements),
                          "Unable to find elements by xpath using #{xpath.inspect}"
         # TODO: Additional error handling
       end
@@ -256,6 +254,10 @@ module WebDriver::IE
         check_error_code Lib.wdeGetAttribute(element_pointer, wstring_ptr(name), string_pointer),
                          "Unable to get attribute #{name.inspect}"
       end
+    end
+    
+    def get_element_value(element_pointer)
+      get_element_attribute element_pointer, 'value'
     end
     
     def get_element_text(element_pointer)

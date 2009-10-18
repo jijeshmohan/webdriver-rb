@@ -34,10 +34,10 @@ end
 def driver
   $driver ||= case $__webdriver__
               when :remote 
-                WebDriver::Remote::Driver.new( :server_url           => "http://localhost:8080/",
-                                               :desired_capabilities => WebDriver::Remote::Capabilities.firefox )
+                WebDriver::Driver.new WebDriver::Remote::Bridge.new(:server_url           => "http://localhost:8080/",
+                                                                    :desired_capabilities => WebDriver::Remote::Capabilities.firefox )
               when :ie
-                WebDriver::CommonDriver.new(WebDriver::IE::Bridge.new)
+                WebDriver::Driver.new WebDriver::IE::Bridge.new
               end
 end
 

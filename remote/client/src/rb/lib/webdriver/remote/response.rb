@@ -1,39 +1,37 @@
-module WebDriver::Remote
-  
-  #
-  # Encapsulation of the server side response to a command.
-  #
-  # @option value               the response value from the server, if any
-  # @option context    [String] the webdriver context (window, frame, etc.)
-  # @option session_id [String] the webdriver session id
-  # @option error      [Boolean] whether an error occurred
-  #
-  # @api public
-  #
-  class Response
+module WebDriver
+  module Remote
+    class Response
 
-    attr_reader :value, :context, :session_id
+      attr_accessor :code
+      attr_writer   :payload
 
-    def initialize(opts = {})
-      @value      = opts[:value]
-      @context    = opts[:context]
-      @session_id = opts[:session_id]
-      @error      = opts[:error]
-    end
+      def initialize
+        yield self if block_given?
+        assert_ok
+      end
 
-    # @api private
-    def self.json_create(data)
-      new(
-        :value      => data["value"],
-        :context    => data["context"],
-        :session_id => data["sessionId"],
-        :error      => data["error"]
-      )
-    end
-
-    def error?
-      @error
-    end
-
-  end
-end
+      def error
+        if payload['error'] 
+          JSON.parse(payload['value']) rescue {}
+        end
+      end
+      
+      def [](key)
+        payload[key]
+      end
+      
+      def payload
+        @payload ||= {}
+      end
+      
+      private
+      
+      def assert_ok
+        if @code.nil? || @code > 400
+          raise ServerError, self
+        end
+      end
+      
+    end # Response
+  end # Remote
+end # WebDriver

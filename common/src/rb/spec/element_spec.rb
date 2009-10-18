@@ -40,13 +40,17 @@ describe "Element" do
   it "should get and set selected" do
     driver.navigate.to Page.form
     cheese = driver.find_element(:id, "cheese")
-    peas = driver.find_element(:id, "peas")
-    cheese.selected = true
-    cheese.selected?.should == true
-    peas.selected?.should == false
-    peas.selected = true
-    peas.selected?.should == true
-    cheese.selected?.should == false
+    peas   = driver.find_element(:id, "peas")
+    
+    cheese.select
+    
+    cheese.should be_selected
+    peas.should_not be_selected
+    
+    peas.select
+    
+    peas.should be_selected
+    cheese.should_not be_selected
   end
 
   it "should get enabled" do

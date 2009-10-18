@@ -4,7 +4,7 @@ module WebDriver
   # The WebDriver interface
   # 
   
-  class CommonDriver
+  class Driver
     include Find
 
     attr_reader :bridge
@@ -69,5 +69,5 @@ module WebDriver
       bridge.execute_script(*args)
     end
     
-  end # CommonDriver
+  end # Driver
 end # WebDriver

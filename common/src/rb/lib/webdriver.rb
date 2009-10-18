@@ -4,8 +4,8 @@ require "webdriver/target_locator"
 require "webdriver/navigation"
 require "webdriver/options"
 require "webdriver/find"
-require "webdriver/common_driver"
-require "webdriver/common_element"
+require "webdriver/driver"
+require "webdriver/element"
 
 
 module WebDriver

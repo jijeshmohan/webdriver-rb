@@ -1,85 +1,87 @@
-module WebDriver::Remote
-  
-  #
-  # Specification of the desired and/or actual capabilities of the browser that the
-  # server is being asked to create.
-  #
-  # @option browser_name [String] required browser name
-  # @option version [String] required browser version number
-  # @option platform [Symbol] one of :any, :win, :mac, or :x
-  # @option javascript_enabled [Boolean] should the test run with javascript enabled?
-  #
-  # @api public
-  #
-  
-  class Capabilities
-
-    attr_accessor :browser_name, :version, :platform, :javascript_enabled
-    alias_method :javascript_enabled?, :javascript_enabled
-    
-    # Convenience methods for the common choices.
-
-    class << self
-      def firefox(opts = {})
-        new({
-          :browser_name => "firefox"
-        }.merge(opts))
-      end
-
-      def internet_explorer(opts = {})
-        new({
-          :browser_name => "internet explorer",
-          :platform     => :win
-        }.merge(opts))
-      end
-
-      def htmlunit(opts = {})
-        new({
-          :browser_name => "htmlunit"
-        }.merge(opts))
-      end
-
-      def safari(opts = {})
-        new({
-          :browser_name => "safari",
-          :platform     => :mac
-        }.merge(opts))
-      end
-    end
-    
-
-    def initialize(opts = {})
-      @browser_name       = opts[:browser_name] || ""
-      @version            = opts[:version] || ""
-      @platform           = opts[:platform] || :any
-      @javascript_enabled = opts[:javascript_enabled] || false
-    end
+module WebDriver
+  module Remote
 
     #
-    # @api private
+    # Specification of the desired and/or actual capabilities of the browser that the
+    # server is being asked to create.
     #
-    
-    def self.json_create(data)
-      new(
-        :browser_name       => data["browserName"],
-        :version            => data["version"],
-        :platform           => data["platform"].downcase.to_sym,
-        :javascript_enabled => data["javascriptEnabled"]
-      )
-    end
+    # @option browser_name [String] required browser name
+    # @option version [String] required browser version number
+    # @option platform [Symbol] one of :any, :win, :mac, or :x
+    # @option javascript_enabled [Boolean] should the test run with javascript enabled?
+    #
+    # @api public
+    #
 
-    #
-    # @api private
-    #
-    
-    def to_json
-      {
-        "browserName"       => browser_name,
-        "version"           => version,
-        "platform"          => platform.to_s.upcase,
-        "javascriptEnabled" => javascript_enabled?
-      }.to_json
-    end
+    class Capabilities
 
-  end # Capabilities
-end # WebDriver::Remote
+      attr_accessor :browser_name, :version, :platform, :javascript_enabled
+      alias_method :javascript_enabled?, :javascript_enabled
+
+      # Convenience methods for the common choices.
+
+      class << self
+        def firefox(opts = {})
+          new({
+            :browser_name => "firefox"
+          }.merge(opts))
+        end
+
+        def internet_explorer(opts = {})
+          new({
+            :browser_name => "internet explorer",
+            :platform     => :win
+          }.merge(opts))
+        end
+
+        def htmlunit(opts = {})
+          new({
+            :browser_name => "htmlunit"
+          }.merge(opts))
+        end
+
+        def safari(opts = {})
+          new({
+            :browser_name => "safari",
+            :platform     => :mac
+          }.merge(opts))
+        end
+      end
+
+
+      def initialize(opts = {})
+        @browser_name       = opts[:browser_name]       || ""
+        @version            = opts[:version]            || ""
+        @platform           = opts[:platform]           || :any
+        @javascript_enabled = opts[:javascript_enabled] || false
+      end
+
+      #
+      # @api private
+      #
+
+      def self.json_create(data)
+        new(
+          :browser_name       => data["browserName"],
+          :version            => data["version"],
+          :platform           => data["platform"].downcase.to_sym,
+          :javascript_enabled => data["javascriptEnabled"]
+        )
+      end
+
+      #
+      # @api private
+      #
+
+      def to_json
+        {
+          "browserName"       => browser_name,
+          "version"           => version,
+          "platform"          => platform.to_s.upcase,
+          "javascriptEnabled" => javascript_enabled?
+        }.to_json
+      end
+
+    end # Capabilities
+  end # Remote
+end # WebDriver
