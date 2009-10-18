@@ -37,7 +37,7 @@ def driver
                 WebDriver::Remote::Driver.new( :server_url           => "http://localhost:8080/",
                                                :desired_capabilities => WebDriver::Remote::Capabilities.firefox )
               when :ie
-                WebDriver::IE::Driver.new
+                WebDriver::CommonDriver.new(WebDriver::IE::Bridge.new)
               end
 end
 
