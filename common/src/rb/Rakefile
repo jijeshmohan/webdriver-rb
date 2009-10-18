@@ -1,0 +1,24 @@
+begin
+  require "rubygems"
+rescue LoadError
+end
+
+require "spec/rake/spectask"
+
+namespace :spec do
+  SPEC_OPTS = %w[--format progress]
+
+  desc 'Run specs for the IE driver'
+  Spec::Rake::SpecTask.new :ie do |t|
+    t.spec_opts = SPEC_OPTS
+    t.libs      = ["./lib", "../../../jobbie/src/rb/lib"]
+    t.ruby_opts = %w[-rubygems] if defined?(Gem)
+  end
+  
+  desc 'Run specs for the Remote driver'
+  Spec::Rake::SpecTask.new :remote do |t|
+    t.spec_opts = SPEC_OPTS
+    t.libs      = ["./lib", "../../../remote/client/src/rb/lib"]
+    t.ruby_opts = %w[-rubygems] if defined?(Gem)
+  end
+end
