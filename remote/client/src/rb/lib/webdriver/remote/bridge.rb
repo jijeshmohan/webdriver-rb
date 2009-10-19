@@ -385,7 +385,7 @@ module WebDriver
       end
 
       def element_id_from(arr)
-        arr.first.split("/").last
+        arr.to_s.split("/").last
       end
 
 

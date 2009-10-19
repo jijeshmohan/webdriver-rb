@@ -22,12 +22,17 @@ else
   abort "not sure what driver to run specs for"
 end
 
+# TODO: fix this mess
 def fix_windows_path(path)
-  return path unless $__webdriver__ == :ie
-  path = path[%r[file://(.*)], 1]
-  path.gsub!("/", '\\')
+  return path unless RUBY_PLATFORM =~ /mswin|mingw/
+  if $__webdriver__ == :ie
+    path = path[%r[file://(.*)], 1]
+    path.gsub!("/", '\\')
 
-  "file://#{path}"
+    "file://#{path}"
+  else
+    path.sub(%r[file:/{0,2}], "file:///")
+  end
 end
 
 def driver
