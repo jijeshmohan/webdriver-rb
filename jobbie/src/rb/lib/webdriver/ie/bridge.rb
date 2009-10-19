@@ -383,7 +383,23 @@ module WebDriver
       end
 
       def drag_and_drop_by(element_pointer, right_by, down_by)
-        raise NotImplementedError
+        # TODO: check return values?
+        hwnd                = FFI::MemoryPointer.new :pointer
+        x, y, width, height = Array.new(4) { FFI::MemoryPointer.new :long }
+
+        check_error_code Lib.wdeGetDetailsOnceScrolledOnToScreen(element_pointer, hwnd, x, y, width, height),
+                         "Unable to determine location once scrolled on to screen"
+
+        Lib.wdeMouseDownAt(hwnd.get_pointer(0), x.get_long(0), y.get_long(0))
+
+        destination_x = x.get_long(0) + right_by
+        destination_y = y.get_long(0) + down_by
+        duration      = 500 # TODO: parent.manage().getSpeed().getTimeOut();
+
+        Lib.wdeMouseMoveTo(hwnd.get_pointer(0), duration, x.get_long(0), y.get_long(0), destination_x, destination_y)
+        Lib.wdeMouseUpAt(hwnd.get_pointer(0), destination_x, destination_y)
+      ensure
+        [hwnd, x, y, width, height].each { |pointer| pointer.free }
       end
 
       def get_element_location(element_pointer)
