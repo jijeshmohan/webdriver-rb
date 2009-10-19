@@ -1,9 +1,4 @@
 module WebDriver
-
-  #
-  # The WebDriver interface
-  #
-
   class Driver
     include Find
 
@@ -108,8 +103,6 @@ module WebDriver
       find_element :id, id
     end
 
-
-    private
 
     #
     # for Find

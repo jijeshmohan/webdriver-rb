@@ -109,10 +109,8 @@ module WebDriver
     #
     alias_method :[], :attribute
 
-    private
-
     #
-    # for Find
+    # for Find and execute_script
     #
 
     def ref
