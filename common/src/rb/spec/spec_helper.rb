@@ -42,3 +42,4 @@ end
 
 at_exit { driver.quit rescue nil }
 
+$stdout.sync = true

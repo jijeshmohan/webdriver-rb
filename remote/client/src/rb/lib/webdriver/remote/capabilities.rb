@@ -91,7 +91,7 @@ module WebDriver
           "browserName"       => browser_name,
           "version"           => version,
           "platform"          => platform.to_s.upcase,
-          "javascriptEnabled" => javascript_enabled?
+          "javascriptEnabled" => javascript?
         }.to_json
       end
 

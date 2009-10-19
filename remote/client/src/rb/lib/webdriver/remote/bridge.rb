@@ -138,11 +138,10 @@ module WebDriver
         invoke :get_speed
       end
 
-      def execute_script(script, typed_args)
+      def execute_script(script, *args)
         raise UnsupportedOperationError, "underlying webdriver instace does not support javascript" unless capabilities.javascript?
 
-        # remote server requires type information for all arguments
-        typed_args = args.collect do |arg|
+        typed_args = args.map do |arg|
           case arg
           when Integer, Float
             { :type => "NUMBER", :value => arg }
