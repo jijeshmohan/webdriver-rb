@@ -30,7 +30,7 @@ module WebDriver
         def internet_explorer(opts = {})
           new({
             :browser_name => "internet explorer",
-            :platform     => :win
+            :platform     => :windows
           }.merge(opts))
         end
 
@@ -57,7 +57,7 @@ module WebDriver
         def chrome(opts = {})
           new({
             :browser_name => "chrome",
-            :platform     => :win
+            :platform     => :windows
           }.merge(opts))
         end
       end

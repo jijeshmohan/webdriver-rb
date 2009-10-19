@@ -11,27 +11,27 @@ module WebDriver
       end
 
       def error
-        if payload['error'] 
+        if payload['error']
           JSON.parse(payload['value']) rescue {}
         end
       end
-      
+
       def [](key)
         payload[key]
       end
-      
+
       def payload
         @payload ||= {}
       end
-      
+
       private
-      
+
       def assert_ok
         if @code.nil? || @code > 400
-          raise ServerError, self
+          raise Error::ServerError, self
         end
       end
-      
+
     end # Response
   end # Remote
 end # WebDriver

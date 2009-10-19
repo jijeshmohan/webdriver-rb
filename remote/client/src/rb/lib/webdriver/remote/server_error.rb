@@ -6,7 +6,7 @@ module WebDriver
     #   'org.openqa.selenium.NoSuchFrameException'   => NoSuchFrameError,
     #   'org.openqa.selenium.NoSuchWindowException'  => NoSuchWindowError,
     # }
-    # 
+    #
     # class << self
     #   def for_remote_class(klass)
     #     REMOTE_EXCEPTIONS[klass] || RuntimeError
@@ -48,6 +48,6 @@ module WebDriver
       #   self.class.name + ": " + @data["value"]["class"] + ": " + @data["value"]["message"]
       # end
     end
-   
+
   end # Error
 end # WebDriver
