@@ -15,25 +15,24 @@ Page = OpenStruct.new(
 
 # hack to find out what driver we're using
 if $LOAD_PATH.any? { |p| p.include?("remote/client") }
-  WebDriver::Remote
   $__webdriver__ = :remote
 elsif $LOAD_PATH.any? { |p| p.include?("jobbie") }
-  WebDriver::IE
   $__webdriver__ = :ie
 else
   abort "not sure what driver to run specs for"
 end
 
-case $__webdriver__
-when :remote
-  def driver
-  end
-  
+def fix_windows_path(path)
+  return path unless $__webdriver__ == :ie
+  path = path[%r[file://(.*)], 1]
+  path.gsub!("/", '\\')
+
+  "file://#{path}"
 end
 
 def driver
   $driver ||= case $__webdriver__
-              when :remote 
+              when :remote
                 WebDriver::Driver.new WebDriver::Remote::Bridge.new(:server_url           => "http://localhost:8080/",
                                                                     :desired_capabilities => WebDriver::Remote::Capabilities.firefox )
               when :ie

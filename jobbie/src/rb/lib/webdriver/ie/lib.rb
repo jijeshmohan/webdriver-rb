@@ -20,8 +20,8 @@ module WebDriver::IE
     attach_function :wdeClick,                            [:pointer                                       ], :int
     attach_function :wdeGetAttribute,                     [:pointer, :pointer, :pointer                   ], :int
     attach_function :wdeGetDetailsOnceScrolledOnToScreen, [:pointer, :pointer, :long, :long, :long, :long ], :int
-    attach_function :wdeGetLocation,                      [:pointer, :long, :long                         ], :int
-    attach_function :wdeGetSize,                          [:pointer, :long, :long                         ], :int
+    attach_function :wdeGetLocation,                      [:pointer, :pointer, :pointer                   ], :int
+    attach_function :wdeGetSize,                          [:pointer, :pointer, :pointer                   ], :int
     attach_function :wdeGetTagName,                       [:pointer, :pointer                             ], :int
     attach_function :wdeGetText,                          [:pointer, :pointer                             ], :int
     attach_function :wdeGetValueOfCssProperty,            [:pointer, :pointer, :pointer                   ], :int
@@ -82,12 +82,12 @@ module WebDriver::IE
     attach_function :wdSwitchToWindow,                    [:pointer, :pointer                             ], :int
     attach_function :wdWaitForLoadToComplete,             [:pointer                                       ], :int
   end
-  
+
   module Kernel32
     extend FFI::Library
 
     ffi_lib "kernel32.dll"
-    
+
     attach_function :MultiByteToWideChar, [:int, :long, :pointer, :int, :pointer, :int                    ], :int
     attach_function :WideCharToMultiByte, [:int, :long, :pointer, :int, :pointer, :int, :pointer, :pointer], :int
   end

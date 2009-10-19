@@ -3,12 +3,14 @@ require "#{File.dirname(__FILE__)}/spec_helper"
 describe "Driver" do
   it "should navigate forward and back" do
     driver.navigate.to Page.xhtml
-    driver.current_url.should == Page.xhtml
+    driver.current_url.should == fix_windows_path(Page.xhtml)
+
     driver.navigate.to Page.form
     driver.navigate.back
-    driver.current_url.should == Page.xhtml
+    driver.current_url.should == fix_windows_path(Page.xhtml)
+
     driver.navigate.forward
-    driver.current_url.should == Page.form
+    driver.current_url.should == fix_windows_path(Page.form)
   end
 
   it "should get the page title" do

@@ -14,17 +14,12 @@ describe "Element" do
 
   it "should get value" do
     driver.navigate.to Page.form
-    driver.find_element(:name, "selectomatic").value.should == "One"
+    driver.find_element(:id, "cheese").value.should == "cheese"
   end
 
   it "should send keys" do
     driver.navigate.to Page.form
     driver.find_element(:id, "working").send_keys("foo", "bar")
-  end
-
-  it "should clear" do
-    driver.navigate.to Page.form
-    driver.find_element(:id, "withText").clear
   end
 
   it "should get attribute value" do
@@ -37,18 +32,23 @@ describe "Element" do
     driver.find_element(:id, "checky").toggle
   end
 
+  it "should clear" do
+    driver.navigate.to Page.form
+    driver.find_element(:id, "withText").clear
+  end
+
   it "should get and set selected" do
     driver.navigate.to Page.form
     cheese = driver.find_element(:id, "cheese")
     peas   = driver.find_element(:id, "peas")
-    
+
     cheese.select
-    
+
     cheese.should be_selected
     peas.should_not be_selected
-    
+
     peas.select
-    
+
     peas.should be_selected
     cheese.should_not be_selected
   end
@@ -80,13 +80,13 @@ describe "Element" do
 
   it "should drag and drop" do
     driver.navigate.to Page.drag_and_drop
-    
+
     img1 = driver.find_element(:id, "test1")
     img2 = driver.find_element(:id, "test2")
-    
+
     img1.drag_and_drop_by 100, 100
     img2.drag_and_drop_on(img1)
-    
+
     img1.location.should == img2.location
   end
 

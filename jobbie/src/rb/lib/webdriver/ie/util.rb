@@ -112,8 +112,9 @@ module WebDriver
 
 
       def wstring_ptr(str)
-        str = str.to_s
+        str  = str.to_s
         size = Kernel32.MultiByteToWideChar(CP_UTF8, 0, str, -1, nil, 0)
+
         unless size > 0
           raise "Could not convert #{str.inspect} to wchar ptr"
         end
@@ -126,6 +127,7 @@ module WebDriver
 
       def wstring_to_bytestring(wstring)
         size = Kernel32.WideCharToMultiByte(CP_UTF8, 0, wstring, -1, nil, 0, nil, nil)
+
         unless size > 0
           raise "Could not convert wstring pointer to bytestring"
         end
@@ -135,9 +137,9 @@ module WebDriver
 
         buf.get_bytes(0, size - 1)
       ensure
-        buf.free
+        buf.free if buf
       end
-      
+
     end # Util
   end # IE
 end # WebDriver
