@@ -55,8 +55,7 @@ module WebDriver
       def initialize(opts = {})
         opts          = DEFAULT_OPTIONS.merge(opts)
         @context      = "context"
-        @server_url   = URI.parse(opts[:server_url])
-        @http         = opts[:http_client].new(@server_url)
+        @http         = opts[:http_client].new URI.parse(opts[:server_url])
         @capabilities = create_session opts[:desired_capabilities]
       end
 

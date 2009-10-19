@@ -1,9 +1,4 @@
 module WebDriver
-
-  #
-  # The WebElement interface
-  #
-
   class Element
     include Find
 
@@ -11,10 +6,6 @@ module WebDriver
 
     def initialize(bridge, id)
       @bridge, @id = bridge, id
-    end
-
-    def ref
-      @id
     end
 
     def click
@@ -99,5 +90,36 @@ module WebDriver
       drag_and_drop_by right, down
     end
 
+    #-------------------------------- sugar  --------------------------------
+
+    #
+    # element.first(:id, 'foo')
+    #
+
+    alias_method :first, :find_element
+
+    #
+    # element.all(:class, 'bar')
+    #
+
+    alias_method :all, :find_elements
+
+    #
+    # element['class'] or element[:class] #=> "someclass"
+    #
+    alias_method :[], :attribute
+
+    private
+
+    #
+    # for Find
+    #
+
+    def ref
+      @id
+    end
+
+
+
   end # Element
-end # WebDriver::IE
+end # WebDriver
