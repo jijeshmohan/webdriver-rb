@@ -46,8 +46,21 @@ module WebDriver
             :platform     => :mac
           }.merge(opts))
         end
-      end
 
+        def iphone(opts = {})
+          new({
+            :browser_name => "iphone",
+            :platform     => :mac
+          }.merge(opts))
+        end
+
+        def chrome(opts = {})
+          new({
+            :browser_name => "chrome",
+            :platform     => :win
+          }.merge(opts))
+        end
+      end
 
       def initialize(opts = {})
         @browser_name       = opts[:browser_name]       || ""
