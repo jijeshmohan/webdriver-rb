@@ -364,6 +364,10 @@ module WebDriver
         raise NotImplementedError
       end
 
+      def drag_and_drop_by(element_pointer, right_by, down_by)
+        raise NotImplementedError
+      end
+
       def get_element_location(element_pointer)
         x = FFI::MemoryPointer.new :long
         y = FFI::MemoryPointer.new :long

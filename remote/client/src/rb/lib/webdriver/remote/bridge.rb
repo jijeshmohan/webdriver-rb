@@ -6,18 +6,18 @@ module WebDriver
   module Remote
 
     DEBUG = $VERBOSE == true
-    
+
     COMMANDS = {}
-    
+
     #
     # Low level bridge to the remote server, through which the rest of the API works.
-    # 
+    #
     # @api private
     #
 
     class Bridge
       include Find
-      
+
       DEFAULT_OPTIONS = {
         :server_url           => "http://localhost:7055/",
         :http_client          => DefaultHttpClient,
@@ -59,7 +59,7 @@ module WebDriver
         @http         = opts[:http_client].new(@server_url)
         @capabilities = create_session opts[:desired_capabilities]
       end
-      
+
       #
       # Returns the current session ID.
       #
@@ -67,78 +67,78 @@ module WebDriver
       def session_id
         @session_id || raise(StandardError, "no current session exists")
       end
-      
+
 
       def create_session(desired_capabilities)
         resp  = raw_invoke :new_session, {}, desired_capabilities
         @session_id = resp['sessionId'] || raise('no sessionId in returned payload')
         Capabilities.json_create resp['value']
       end
-      
+
       def get(url)
         invoke :get, {}, url
       end
-      
+
       def back
         invoke :back
       end
-      
+
       def forward
         invoke :forward
       end
-      
+
       def current_url
         invoke :current_url
       end
-      
+
       def get_title
         invoke :get_title
       end
-      
+
       def page_source
         invoke :page_source
       end
-      
+
       def get_visible
         invoke :get_visible
       end
-      
+
       def set_visible(bool)
         invoke :set_visible, {}, bool
       end
-      
+
       def switch_to_window(name)
         invoke :switch_to_window, :name => name
       end
-      
+
       def switch_to_frame(id)
         invoke :switch_to_frame, :id => id
       end
-      
+
       def quit
         invoke :quit
       end
-      
+
       def close
         invoke :close
       end
-      
+
       def get_window_handles
         invoke :get_window_handles
       end
-      
+
       def get_current_window_handle
         invoke :get_current_window_handle
       end
-      
+
       def set_speed(value)
         invoke :set_speed, {}, value
       end
-      
+
       def get_speed
         invoke :get_speed
       end
-      
+
       def execute_script(script, *args)
         raise UnsupportedOperationError, "underlying webdriver instace does not support javascript" unless capabilities.javascript_enabled?
 
@@ -149,41 +149,41 @@ module WebDriver
             { :type => "NUMBER", :value => arg }
           when TrueClass, FalseClass
             { :type => "BOOLEAN", :value => arg }
-          when Element 
+          when Element
             { :type => "ELEMENT", :value => arg.ref }
-          else 
+          else
             { :type => "STRING", :value => arg.to_s }
           end
         end
 
         response = raw_invoke :execute_script, {}, script, typed_args
-        
+
         # un-type the result value
         result = response['value']
         case result["type"]
         when "ELEMENT"
           Element.new(self, element_id_from(result["value"]))
-        else 
+        else
           result["value"]
         end
       end
-      
+
       def add_cookie(cookie)
         invoke :add_cookie, {}, cookie
       end
-      
+
       def delete_cookie(name)
         invoke :delete_cookie, :name => name
       end
-      
+
       def get_all_cookies
         invoke :get_all_cookies
       end
-      
+
       def delete_all_cookies
         invoke :delete_all_cookies
       end
-      
+
       def find_element_by_class_name(parent, class_name)
         find_element_by 'class name', class_name, parent
       end
@@ -243,7 +243,7 @@ module WebDriver
 
       #
       # Element functions
-      # 
+      #
 
       def click_element(element)
         invoke :click_element, :id => element
@@ -273,9 +273,9 @@ module WebDriver
       def get_element_size(element)
         invoke :get_element_size, :id => element
       end
-      
+
       def send_keys(element, string)
-        invoke :send_keys, {:id => element}, {:value => string.split(//u)} 
+        invoke :send_keys, {:id => element}, {:value => string.split(//u)}
       end
 
       def clear_element(element)
@@ -301,7 +301,7 @@ module WebDriver
       def toggle_element(element)
         invoke :toggle_element, :id => element
       end
-      
+
       def set_element_selected(element)
         invoke :set_element_selected, :id => element
       end
@@ -309,7 +309,7 @@ module WebDriver
       def get_value_of_css_property(element, prop)
         invoke :get_value_of_css_property, :id => element, :property_name => prop
       end
-      
+
       def get_active_element
         id = invoke :get_active_element
         Element.new self, element_id_from(id)
@@ -320,63 +320,70 @@ module WebDriver
         invoke :hover, :id => element
       end
 
+      def drag_and_drop_by(element, rigth_by, down_by)
+        # TODO: why is element sent twice in payload?
+        invoke :drag_element, {:id => element}, element, rigth_by, down_by
+      end
+
       private
-      
+
       def find_element_by(how, what, parent = nil)
         if parent
+          # TODO: why is how sent twice in payload?
           id = invoke :find_element_using_element, {:id => parent, :using => how}, {:using => how, :value => what}
         else
           id = invoke :find_element, {}, how, what
         end
-        
+
         Element.new self, element_id_from(id)
       end
-      
+
       def find_elements_by(how, what, parent = nil)
         if parent
+          # TODO: why is how sent twice in payload?
           ids = invoke :find_elements_using_element, {:id => parent, :using => how}, {:using => how, :value => what}
         else
           ids = invoke :find_elements, {}, how, what
         end
-        
+
         ids.map { |id| Element.new self, element_id_from(id) }
       end
-      
-      
+
+
       #
       # Invokes a command on the remote server via the REST / JSON API.
       #
       #
       # Returns the 'value' of the returned payload
-      # 
-      
+      #
+
       def invoke(*args)
         raw_invoke(*args)['value']
       end
-      
+
       #
       # Invokes a command on the remote server via the REST / JSON API.
       #
       # Returns a WebDriver::Remote::Response instance
       #
-      
+
       def raw_invoke(command, opts = {}, *args)
         verb, path = COMMANDS[command] || raise("Unknown command #{command.inspect}")
         path       = path.dup
-        
+
         path[':session_id'] = @session_id if path.include?(":session_id")
         path[':context']    = @context if path.include?(":context")
-        
+
         begin
           opts.each { |key, value| path[key.inspect] = value }
         rescue IndexError
           raise ArgumentError, "#{opts.inspect} invalid for #{command.inspect}"
         end
-        
+
         puts "-> #{verb.to_s.upcase} #{path}" if DEBUG
         http.call verb, path, *args
       end
-      
+
       def element_id_from(arr)
         arr.first.split("/").last
       end

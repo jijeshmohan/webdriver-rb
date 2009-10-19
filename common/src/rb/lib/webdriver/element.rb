@@ -1,18 +1,18 @@
 module WebDriver
-  
-  # 
+
+  #
   # The WebElement interface
-  # 
-  
+  #
+
   class Element
     include Find
-    
+
     attr_reader :bridge
 
     def initialize(bridge, id)
       @bridge, @id = bridge, id
     end
-    
+
     def ref
       @id
     end
@@ -24,7 +24,7 @@ module WebDriver
     def tag_name
       bridge.get_tag_name @id
     end
-    
+
     def value
       bridge.get_element_value @id
     end
@@ -56,7 +56,7 @@ module WebDriver
     def displayed?
       bridge.is_element_displayed @id
     end
-    
+
     def select
       bridge.set_element_selected @id
     end
@@ -90,7 +90,13 @@ module WebDriver
     end
 
     def drag_and_drop_on(other)
-      bridge.drag_and_drop_on @id, other
+      current_location = location()
+      destination      = other.location
+
+      right = destination.x - current_location.x
+      down  = destination.y - current_location.y
+
+      drag_and_drop_by right, down
     end
 
   end # Element
