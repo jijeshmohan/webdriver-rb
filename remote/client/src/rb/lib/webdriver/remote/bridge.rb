@@ -149,8 +149,10 @@ module WebDriver
             { :type => "BOOLEAN", :value => !!arg }
           when Element
             { :type => "ELEMENT", :value => arg.ref }
-          else
+          when String
             { :type => "STRING", :value => arg.to_s }
+          else
+            raise TypeError, "Parameter is not of recognized type: #{arg.inspect}:#{arg.class}"
           end
         end
 
