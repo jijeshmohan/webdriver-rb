@@ -138,16 +138,16 @@ module WebDriver
         invoke :get_speed
       end
 
-      def execute_script(script, *args)
-        raise UnsupportedOperationError, "underlying webdriver instace does not support javascript" unless capabilities.javascript_enabled?
+      def execute_script(script, typed_args)
+        raise UnsupportedOperationError, "underlying webdriver instace does not support javascript" unless capabilities.javascript?
 
         # remote server requires type information for all arguments
         typed_args = args.collect do |arg|
           case arg
           when Integer, Float
             { :type => "NUMBER", :value => arg }
-          when TrueClass, FalseClass
-            { :type => "BOOLEAN", :value => arg }
+          when TrueClass, FalseClass, NilClass
+            { :type => "BOOLEAN", :value => !!arg }
           when Element
             { :type => "ELEMENT", :value => arg.ref }
           else
@@ -266,6 +266,7 @@ module WebDriver
 
       def get_element_location(element)
         data = invoke :get_element_location, :id => element
+
         Point.new data['x'], data['y']
       end
 
@@ -310,8 +311,7 @@ module WebDriver
       end
 
       def get_active_element
-        id = invoke :get_active_element
-        Element.new self, element_id_from(id)
+        Element.new self, element_id_from(invoke(:get_active_element))
       end
       alias_method :switch_to_active_element, :get_active_element
 
@@ -320,7 +320,7 @@ module WebDriver
       end
 
       def drag_and_drop_by(element, rigth_by, down_by)
-        # TODO: why is element sent twice in payload?
+        # TODO: why is element sent twice in the payload?
         invoke :drag_element, {:id => element}, element, rigth_by, down_by
       end
 
@@ -328,7 +328,7 @@ module WebDriver
 
       def find_element_by(how, what, parent = nil)
         if parent
-          # TODO: why is how sent twice in payload?
+          # TODO: why is how sent twice in the payload?
           id = invoke :find_element_using_element, {:id => parent, :using => how}, {:using => how, :value => what}
         else
           id = invoke :find_element, {}, how, what
@@ -339,7 +339,7 @@ module WebDriver
 
       def find_elements_by(how, what, parent = nil)
         if parent
-          # TODO: why is how sent twice in payload?
+          # TODO: why is how sent twice in the payload?
           ids = invoke :find_elements_using_element, {:id => parent, :using => how}, {:using => how, :value => what}
         else
           ids = invoke :find_elements, {}, how, what

@@ -63,8 +63,8 @@ module WebDriver
       bridge.get_current_window_handle
     end
 
-    def execute_script(*args)
-      bridge.execute_script(*args)
+    def execute_script(script, *args)
+      bridge.execute_script(script, *args)
     end
 
     #-------------------------------- sugar  --------------------------------

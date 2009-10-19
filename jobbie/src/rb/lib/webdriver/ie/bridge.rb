@@ -1,5 +1,6 @@
 module WebDriver
   module IE
+
     class Bridge
       include Util
 
@@ -18,6 +19,13 @@ module WebDriver
                          "Cannot get url #{url.inspect}"
       end
 
+      def current_url
+        create_string do |wrapper|
+          check_error_code Lib.wdGetCurrentUrl(@driver_pointer, wrapper),
+                           "Unable to get current URL"
+        end
+      end
+
       def back
         check_error_code Lib.wdGoBack(@driver_pointer),
                          "Cannot navigate back"
@@ -26,13 +34,6 @@ module WebDriver
       def forward
         check_error_code Lib.wdGoForward(@driver_pointer),
                          "Cannot navigate back"
-      end
-
-      def current_url
-        create_string do |wrapper|
-          check_error_code Lib.wdGetCurrentUrl(@driver_pointer, wrapper),
-                           "Unable to get current URL"
-        end
       end
 
       def get_title
@@ -59,7 +60,6 @@ module WebDriver
       end
 
       def set_visible(bool)
-        raise NotImplementedError, "function doesn't exist in the current prebuilt DLL?"
         check_error_code Lib.wdSetVisible(@driver_pointer, bool ? 1 : 0),
                          "Unable to change the visibility of the browser"
       end
@@ -113,8 +113,26 @@ module WebDriver
         end
       end
 
-      def execute_script(*args)
-        raise NotImplementedError
+      def execute_script(script, *args)
+        script_args_ref = FFI::MemoryPointer.new :pointer
+        result          = Lib.wdNewScriptArgs(script_args_ref, args.size)
+
+        check_error_code result, "Unable to create new script arguments array"
+
+        args_pointer = script_args_ref.get_pointer(0)
+        populate_arguments(result, args_pointer, args)
+
+        script            = "(function() { return function(){" + script + "};})();"
+        script_result_ref = FFI::MemoryPointer.new :pointer
+
+        check_error_code Lib.wdExecuteScript(@driver_pointer, wstring_ptr(script), args_pointer, script_result_ref),
+                         "Cannot execute script"
+
+        extract_return_value script_result_ref
+      ensure
+        script_args_ref.free
+        script_result_ref.free if script_result_ref
+        Lib.wdFreeScriptArgs(args_pointer) if args_pointer
       end
 
       def wait_for_load_to_complete
@@ -402,6 +420,84 @@ module WebDriver
 
       private
 
+      def populate_arguments(result, args_pointer, args)
+        args.each do |arg|
+          case arg
+          when String
+            result = Lib.wdAddStringScriptArg(args_pointer, wstring_ptr(arg))
+          when TrueClass, FalseClass, NilClass
+            result = Lib.wdAddBooleanScriptArg(args_pointer, arg == true ? 1 : 0)
+          when Float
+            result = Lib.wdAddDoubleScriptArg(args_pointer, arg)
+          when Integer
+            result = Lib.wdAddNumberScriptArg(args_pointer, arg)
+          when WebDriver::Element
+            result = Lib.wdAddElementScriptArg(args_pointer, arg.ref)
+          else
+            raise TypeError, "Parameter is not of recognized type: #{arg.inspect}:#{arg.class}"
+          end
+
+          check_error_code result, "Unable to add argument: #{arg.inspect}"
+        end
+
+
+        result
+      end
+
+      def extract_return_value(pointer_ref)
+        result, returned = nil
+        pointers_to_free = []
+        script_result    = pointer_ref.get_pointer(0)
+
+        pointers_to_free << type_pointer = FFI::MemoryPointer.new(:int)
+        result       = Lib.wdGetScriptResultType(script_result, type_pointer)
+
+        check_error_code result, "Cannot determine result type"
+
+        case type_pointer.get_int(0)
+        when 1
+          create_string do |wrapper|
+            check_error_code Lib.wdGetStringScriptResult(script_result, wrapper), "Cannot extract string result"
+          end
+        when 2
+          pointers_to_free << long_pointer = FFI::MemoryPointer.new(:long)
+          check_error_code Lib.wdGetNumberScriptResult(script_result, long_pointer),
+                           "Cannot extract number result"
+
+          long_pointer.get_long(0)
+        when 3
+          pointers_to_free << int_pointer = FFI::MemoryPointer.new(:int)
+          check_error_code Lib.wdGetBooleanScriptResult(script_result, int_pointer),
+                           "Cannot extract boolean result"
+
+          int_pointer.get_int(0) == 1
+        when 4
+          element_pointer = FFI::MemoryPointer.new(:pointer)
+          check_error_code Lib.wdGetElementScriptResult(script_result, @driver_pointer, element_pointer),
+                           "Cannot extract element result"
+
+          Element.new(self, element_pointer.get_pointer(0))
+        when 5
+          nil
+        when 6
+          message = create_string do |string_pointer|
+            check_error_code Lib.wdGetStringScriptResult(script_result, string_pointer), "Cannot extract string result"
+          end
+
+          raise WebDriverError, message
+        when 7
+          pointers_to_free << double_pointer = FFI::MemoryPointer.new(:double)
+          check_error_code Lib.wdGetDoubleScriptResult(script_result, double_pointer), "Cannot extract double result"
+
+          double_pointer.get_double(0)
+        else
+          raise WebDriverError, "Cannot determine result type"
+        end
+      ensure
+        Lib.wdFreeScriptResult(script_result) if script_result
+        pointers_to_free.each { |p| p.free }
+      end
+
       def check_error_code(code, message)
         e = WebDriver::Error.for_code(code)
         raise e, "#{message} (#{code})" if e
@@ -409,4 +505,4 @@ module WebDriver
 
     end # Bridge
   end # IE
-end # WebDriver::IE
+end # WebDriver

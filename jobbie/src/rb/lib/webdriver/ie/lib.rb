@@ -75,7 +75,7 @@ module WebDriver::IE
     attach_function :wdGoForward,                         [:pointer                                       ], :int
     attach_function :wdNewDriverInstance,                 [:pointer                                       ], :int
     attach_function :wdNewScriptArgs,                     [:pointer, :int                                 ], :int
-    # attach_function :wdSetvisible,                        [:pointer, :int                                 ], :int
+    attach_function :wdSetVisible,                        [:pointer, :int                                 ], :int
     attach_function :wdStringLength,                      [:pointer, :pointer                             ], :int
     attach_function :wdSwitchToActiveElement,             [:pointer, :pointer                             ], :int
     attach_function :wdSwitchToFrame,                     [:pointer, :pointer                             ], :int

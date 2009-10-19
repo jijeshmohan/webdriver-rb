@@ -23,7 +23,9 @@ module WebDriver
     class TimeOutError < StandardError; end                 # 21
     class NullPointerError < StandardError; end             # 22
     class NoSuchWindowError < StandardError; end            # 23
+
     class UnsupportedOperationError < StandardError; end
+    class WebDriverError < StandardError; end
   end
 end
 

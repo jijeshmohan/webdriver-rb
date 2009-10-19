@@ -16,7 +16,7 @@ module WebDriver
     class Capabilities
 
       attr_accessor :browser_name, :version, :platform, :javascript_enabled
-      alias_method :javascript_enabled?, :javascript_enabled
+      alias_method :javascript?, :javascript_enabled
 
       # Convenience methods for the common choices.
 
