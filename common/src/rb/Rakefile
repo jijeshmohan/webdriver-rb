@@ -14,11 +14,19 @@ namespace :spec do
     t.libs      = ["./lib", "../../../jobbie/src/rb/lib"]
     t.ruby_opts = %w[-rubygems] if defined?(Gem)
   end
-  
+
   desc 'Run specs for the Remote driver'
   Spec::Rake::SpecTask.new :remote do |t|
     t.spec_opts = SPEC_OPTS
     t.libs      = ["./lib", "../../../remote/client/src/rb/lib"]
     t.ruby_opts = %w[-rubygems] if defined?(Gem)
   end
+
+  desc 'Run specs for the Chrome driver'
+  Spec::Rake::SpecTask.new :chrome do |t|
+    t.spec_opts = SPEC_OPTS
+    t.libs      = ["./lib", "../../../chrome/src/rb/lib"]
+    t.ruby_opts = %w[-rubygems] if defined?(Gem)
+  end
+
 end

@@ -10,6 +10,8 @@ module WebDriver
                   WebDriver::IE::Bridge.new(*args)
                 when :remote
                   WebDriver::Remote::Bridge.new(*args)
+                when :chrome
+                  WebDriver::Chrome::Bridge.new(*args)
                 else
                   raise "unknown driver: #{driver.inspect}"
                 end

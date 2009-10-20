@@ -13,5 +13,6 @@ module WebDriver
 
   autoload :IE,     'webdriver/ie'
   autoload :Remote, 'webdriver/remote'
+  autoload :Chrome, 'webdriver/chrome'
 end
 

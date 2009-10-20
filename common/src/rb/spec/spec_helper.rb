@@ -20,6 +20,8 @@ if $LOAD_PATH.any? { |p| p.include?("remote/client") }
   $__webdriver__ = :remote
 elsif $LOAD_PATH.any? { |p| p.include?("jobbie") }
   $__webdriver__ = :ie
+elsif $LOAD_PATH.any? { |p| p.include?("chrome") }
+  $__webdriver__ = :chrome
 else
   abort "not sure what driver to run specs for"
 end
@@ -44,6 +46,8 @@ def driver
                                                :desired_capabilities => WebDriver::Remote::Capabilities.firefox
               when :ie
                 WebDriver::Driver.new :ie
+              when :chrome
+                WebDriver::Driver.new :chrome
               end
 end
 
