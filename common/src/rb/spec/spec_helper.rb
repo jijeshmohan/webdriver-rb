@@ -28,7 +28,7 @@ end
 
 # TODO: fix this mess
 def fix_windows_path(path)
-  return path unless RUBY_PLATFORM =~ /mswin|mingw/
+  return path unless WebDriver::Platform.os == :windows
   if $__webdriver__ == :ie
     path = path[%r[file://(.*)], 1]
     path.gsub!("/", '\\')
@@ -53,4 +53,4 @@ end
 
 at_exit { driver.quit rescue nil }
 
-$stdout.sync = true
+$stdout.sync = true # FIXME

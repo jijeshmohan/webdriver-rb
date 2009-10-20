@@ -3,23 +3,14 @@ module WebDriver
     class Launcher
       include FileUtils
 
-      BINARY   = "#{ENV['HOME']}\\Local Settings\\Application Data\\Google\\Chrome\\Application\\chrome.exe"
-      EXT_PATH = "#{File.dirname(__FILE__)}/../../../../extension"
-      DLL      = "#{File.dirname(__FILE__)}/../../../../../prebuilt/Win32/Release/npchromedriver.dll"
-
-      PLATFORM = case RUBY_PLATFORM
-                 when /win32|mingw/
-                   :windows
-                 when /darwin/
-                   :osx
-                 else
-                   raise "unknown platform"
-                 end
+      attr_reader :pid
 
       def launch
-        copy_extension
-        copy_profile
+        create_extension
+        create_profile
         launch_chrome
+
+        pid
       end
 
       def kill
@@ -28,34 +19,29 @@ module WebDriver
 
       private
 
-      def copy_extension
-        @temp_extension = "#{ENV['TMP']}/chrome-webdriver/#{object_id}/extension"
-        mkdir_p @temp_extension
+      def create_extension
+        ext_files.each { |file| cp file, tmp_extension_dir }
+        cp dll_path, tmp_extension_dir
 
-        ext_files.each { |f| cp f, "#{@temp_extension}/#{File.basename f}" }
-        cp DLL, "#{@temp_extension}/"
-
-        if PLATFORM == :windows
-          mv "#{@temp_extension}/manifest-win.json", "#{@temp_extension}/manifest.json"
+        if Platform.win?
+          mv "#{tmp_extension_dir}/manifest-win.json", "#{tmp_extension_dir}/manifest.json"
         else
-          mv "#{@temp_extension}/manifest-nonwin.json", "#{@temp_extension}/manifest.json"
+          mv "#{tmp_extension_dir}/manifest-nonwin.json", "#{tmp_extension_dir}/manifest.json"
         end
       end
 
-      def copy_profile
-        @temp_profile   = "#{ENV['TMP']}/chrome-webdriver/#{object_id}/profile"
-        mkdir_p @temp_profile
-        touch "#{@temp_profile}/First Run Dev"
+      def create_profile
+        touch "#{tmp_profile_dir}/First Run Dev"
       end
 
       def launch_chrome
-        launch_binary BINARY, "--load-extension=#{wrap_in_quotes_if_neccessary @temp_extension}",
-                              "--user-data-dir=#{wrap_in_quotes_if_neccessary @temp_profile}",
-                              "--activate-on-launch"
+        launch_binary binary_path, "--load-extension=#{wrap_in_quotes_if_neccessary tmp_extension_dir}",
+                                   "--user-data-dir=#{wrap_in_quotes_if_neccessary tmp_profile_dir}",
+                                   "--activate-on-launch"
       end
 
       def ext_files
-        Dir[EXT_PATH + "/*"]
+        Dir["#{ext_path}/*"]
       end
 
       def wrap_in_quotes_if_neccessary(str)
@@ -63,20 +49,49 @@ module WebDriver
       end
 
       def launch_binary(*args)
-        case PLATFORM
+        case Platform.os
         when :windows
-          require "win32/process"
-          @pid = Process.create(
-            :app_name        => args.join(" "),
-            :process_inherit => true,
-            :thread_inherit  => true,
-            :inherit         => true
-          ).process_id
-        when :osx
+          launch_binary_windows(*args)
+        when :unix, :macosx
           @pid = fork { exec(*args) }
         else
           raise "unknown platform"
         end
+      end
+
+      def launch_binary_windows(*args)
+        if Platform.jruby?
+          raise NotImplementedError, "check how java launches the binary"
+        else
+          require "win32/process"
+          @pid = Process.create(:app_name        => args.join(" "),
+                                :process_inherit => true,
+                                :thread_inherit  => true,
+                                :inherit         => true).process_id
+        end
+      end
+
+      def dll_path
+        # TODO: get rid of hardcoded paths
+        @dll_path ||= "#{File.dirname(__FILE__)}/../../../../../prebuilt/Win32/Release/npchromedriver.dll"
+      end
+
+      def binary_path
+        # TODO: get rid of hardcoded paths
+        @binary_path ||= "#{ENV['HOME']}\\Local Settings\\Application Data\\Google\\Chrome\\Application\\chrome.exe"
+      end
+
+      def ext_path
+        # TODO: get rid of hardcoded paths
+        @ext_path ||= "#{File.dirname(__FILE__)}/../../../../extension"
+      end
+
+      def tmp_extension_dir
+        @tmp_extension_dir ||= Dir.mktmpdir("webdriver-chrome-extension")
+      end
+
+      def tmp_profile_dir
+        @tmp_profile_dir ||= Dir.mktmpdir("webdriver-chrome-profile")
       end
 
     end # Launcher

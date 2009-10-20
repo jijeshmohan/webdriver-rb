@@ -2,10 +2,8 @@ require "webdriver/chrome/launcher"
 require "webdriver/chrome/bridge"
 require "webdriver/chrome/command_executor"
 
-require "socket"
-require "json"
-require "thread"
 require "fileutils"
+require "thread"
+require "socket"
 
-Thread.abort_on_exception = true
-$stdout.sync = true
+require "json"  # gem dependency on < 1.9

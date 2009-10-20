@@ -6,7 +6,7 @@ module WebDriver
 
         @launcher = Launcher.new
         @launcher.launch
-        # TODO: kill
+        # TODO: @launcher.kill
       end
 
       def get(url)

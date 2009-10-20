@@ -56,8 +56,9 @@ module WebDriver
 
         def chrome(opts = {})
           new({
-            :browser_name => "chrome",
-            :platform     => :windows
+            :browser_name       => "chrome",
+            :platform           => :windows,
+            :javascript_enabled => true
           }.merge(opts))
         end
       end
