@@ -5,6 +5,7 @@ require "webdriver/chrome/command_executor"
 require "socket"
 require "json"
 require "thread"
+require "fileutils"
 
 Thread.abort_on_exception = true
 $stdout.sync = true

@@ -1,5 +1,3 @@
-require "fileutils"
-
 module WebDriver
   module Chrome
     class Bridge
@@ -59,17 +57,17 @@ module WebDriver
       end
 
       def set_speed(value)
-        
+
       end
 
       def get_speed
-        
+
       end
 
       def execute_script(script, *args)
         raise NotImplementedError
         # raise UnsupportedOperationError, "underlying webdriver instace does not support javascript" unless capabilities.javascript?
-        # 
+        #
         # typed_args = args.map do |arg|
         #   case arg
         #   when Integer, Float
@@ -84,9 +82,9 @@ module WebDriver
         #     raise TypeError, "Parameter is not of recognized type: #{arg.inspect}:#{arg.class}"
         #   end
         # end
-        # 
+        #
         # response = raw_execute :execute_script, {}, script, typed_args
-        # 
+        #
         # # un-type the result value
         # result = response['value']
         # case result["type"]
@@ -205,7 +203,7 @@ module WebDriver
       end
 
       def send_keys(element, string)
-        execute :request => 'sendElementKeys', :elementId => element, :keys => string.split(//u) 
+        execute :request => 'sendElementKeys', :elementId => element, :keys => string.split(//u)
       end
 
       def clear_element(element)
@@ -281,9 +279,13 @@ module WebDriver
 
       def execute(command)
         resp = raw_execute command
+        code = resp['statusCode']
+        if code != 0
+          msg = resp['value']['message'] if resp['value']
+          msg ||= "unknown exception for #{command.inspect}"
+          msg << " (#{code})"
 
-        if resp['statusCode'] != 0
-          raise WebDriverError, resp['message'] || "unknown exception"
+          raise Error::WebDriverError, msg
         end
 
         resp['value']
@@ -292,12 +294,12 @@ module WebDriver
       def raw_execute(command)
         @executor.execute command
       end
-      
+
       # hack!
       def element_id_from(arr)
         arr.to_s.split("/").last
       end
-      
+
 
     end # Bridge
   end # Chrome
