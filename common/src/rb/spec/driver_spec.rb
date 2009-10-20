@@ -23,6 +23,18 @@ describe "Driver" do
     driver.page_source.should match(%r[<title>XHTML Test Page</title>]i)
   end
 
+  # it "should refresh the page" do
+  #   driver.navigate.to Page.xhtml
+  #   driver.execute_script %Q{document.innerHTML = '<div id="refresh-me">testing refresh</div>'}
+  #   pp driver.find_elements(:xpath, "//*")
+  #   sleep 1000
+  #   driver.find_element(:id, 'refresh-me').text.should == "testing refresh"
+  #
+  #   driver.refresh
+  #
+  #   lambda { driver.find_element(:id, 'refresh-me') }.should raise_error
+  # end
+
   describe "one element" do
     it "should find by id" do
       driver.navigate.to Page.xhtml

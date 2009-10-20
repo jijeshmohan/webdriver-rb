@@ -1,6 +1,8 @@
 require "spec"
-require "webdriver"
 require "ostruct"
+require "pp"
+
+require "webdriver"
 
 TEST_URL = "file://" + File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "web"))
 
