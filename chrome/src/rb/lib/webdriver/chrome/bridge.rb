@@ -6,6 +6,7 @@ module WebDriver
 
         @launcher = Launcher.new
         @launcher.launch
+        # TODO: kill
       end
 
       def get(url)
@@ -57,11 +58,11 @@ module WebDriver
       end
 
       def set_speed(value)
-
+        @speed = value
       end
 
       def get_speed
-
+        @speed
       end
 
       def execute_script(script, *args)
@@ -280,12 +281,12 @@ module WebDriver
       def execute(command)
         resp = raw_execute command
         code = resp['statusCode']
-        if code != 0
+        if e = Error.for_code(code)
           msg = resp['value']['message'] if resp['value']
           msg ||= "unknown exception for #{command.inspect}"
           msg << " (#{code})"
 
-          raise Error::WebDriverError, msg
+          raise e, msg
         end
 
         resp['value']

@@ -57,7 +57,7 @@ module WebDriver
       def for_code(code)
         return if code == 0
 
-        Errors[code - 1] || RuntimeError
+        Errors[code - 1] || WebDriverError
       end
     end
 
