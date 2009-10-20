@@ -1,10 +1,16 @@
+require "tmpdir"
+require "fileutils"
+
+require "webdriver/core_ext/dir"
 require "webdriver/error"
+require "webdriver/platform"
 require "webdriver/target_locator"
 require "webdriver/navigation"
 require "webdriver/options"
 require "webdriver/find"
 require "webdriver/driver"
 require "webdriver/element"
+
 
 
 module WebDriver
