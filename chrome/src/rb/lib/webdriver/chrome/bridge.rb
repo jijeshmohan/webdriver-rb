@@ -66,34 +66,7 @@ module WebDriver
       end
 
       def execute_script(script, *args)
-        raise NotImplementedError
-        # raise UnsupportedOperationError, "underlying webdriver instace does not support javascript" unless capabilities.javascript?
-        #
-        # typed_args = args.map do |arg|
-        #   case arg
-        #   when Integer, Float
-        #     { :type => "NUMBER", :value => arg }
-        #   when TrueClass, FalseClass, NilClass
-        #     { :type => "BOOLEAN", :value => !!arg }
-        #   when Element
-        #     { :type => "ELEMENT", :value => arg.ref }
-        #   when String
-        #     { :type => "STRING", :value => arg.to_s }
-        #   else
-        #     raise TypeError, "Parameter is not of recognized type: #{arg.inspect}:#{arg.class}"
-        #   end
-        # end
-        #
-        # response = raw_execute :execute_script, {}, script, typed_args
-        #
-        # # un-type the result value
-        # result = response['value']
-        # case result["type"]
-        # when "ELEMENT"
-        #   Element.new(self, element_id_from(result["value"]))
-        # else
-        #   result["value"]
-        # end
+        execute :request => 'execute', :script => script, :args => args
       end
 
       def add_cookie(cookie)
