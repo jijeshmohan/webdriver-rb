@@ -1,16 +1,17 @@
 require "#{File.dirname(__FILE__)}/spec_helper"
 
 describe "Driver" do
-  it "should navigate forward and back" do
-    driver.navigate.to Page.xhtml
-    driver.current_url.should == fix_windows_path(Page.xhtml)
-
+  it "should navigate back and forward" do
     driver.navigate.to Page.form
+    driver.current_url.should == fix_windows_path(Page.form)
+
+    driver.find_element(:id, 'imageButton').submit
+    # TODO: assert
     driver.navigate.back
-    driver.current_url.should == fix_windows_path(Page.xhtml)
+    driver.current_url.should == fix_windows_path(Page.form)
 
     driver.navigate.forward
-    driver.current_url.should == fix_windows_path(Page.form)
+    # TODO: assert
   end
 
   it "should get the page title" do

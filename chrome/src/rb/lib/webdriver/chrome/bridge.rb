@@ -38,7 +38,7 @@ module WebDriver
       end
 
       def switch_to_frame(id)
-        execute :request => 'switchToFrameByName', :using => {:name => id}
+        execute :request => 'switchToFrameByName', :name => id
       end
 
       def quit
@@ -66,6 +66,7 @@ module WebDriver
       end
 
       def execute_script(script, *args)
+        raise NotImplementedError
         execute :request => 'execute', :script => script, :args => args
       end
 
@@ -230,9 +231,9 @@ module WebDriver
 
       def find_element_by(how, what, parent = nil)
         if parent
-          id = execute :request => 'getElement', :by => [{:id => parent, :using => how, :value => what}]
+          id = execute :request => 'findChildElement', :id => parent, :using => how, :value => what
         else
-          id = execute :request => 'getElement', :by => [how, what]
+          id = execute :request => 'findElement', :using => how, :value => what
         end
 
         Element.new self, element_id_from(id)
@@ -240,9 +241,9 @@ module WebDriver
 
       def find_elements_by(how, what, parent = nil)
         if parent
-          ids = execute :request => 'getElements', :by => [{:id => parent, :using => how, :value => what}]
+          ids = execute :request => 'findChildElements', :id => parent, :using => how, :value => what
         else
-          ids = execute :request => 'getElement', :by => [how, what]
+          ids = execute :request => 'findElements', :using => how, :value => what
         end
 
         ids.map { |id| Element.new self, element_id_from(id) }
