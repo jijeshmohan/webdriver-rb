@@ -64,6 +64,11 @@ describe "Driver" do
       driver.find_element(:xpath, "//h1").text.should == "XHTML Might Be The Future"
     end
 
+    it "should find by tag name" do
+      driver.navigate.to Page.xhtml
+      driver.find_element(:tag_name, 'div').attribute("class").should == "navigation"
+    end
+
     it "should find child element" do
       driver.navigate.to Page.nested
       element = driver.find_element(:name, "form2")
