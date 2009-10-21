@@ -4,17 +4,23 @@ module WebDriver
 
     attr_reader :bridge
 
-    def initialize(driver, *args)
-      @bridge = case driver
-                when :internet_explorer, :ie
-                  WebDriver::IE::Bridge.new(*args)
-                when :remote
-                  WebDriver::Remote::Bridge.new(*args)
-                when :chrome
-                  WebDriver::Chrome::Bridge.new(*args)
-                else
-                  raise "unknown driver: #{driver.inspect}"
-                end
+    class << self
+      def remote(*args)
+        new WebDriver::Remote::Bridge.new(*args)
+      end
+
+      def internet_explorer(*args)
+        new WebDriver::IE::Bridge.new(*args)
+      end
+      alias_method :ie, :internet_explorer
+
+      def chrome(*args)
+        new WebDriver::Chrome::Bridge.new(*args)
+      end
+    end
+
+    def initialize(bridge)
+      @bridge = bridge
     end
 
     def navigate
