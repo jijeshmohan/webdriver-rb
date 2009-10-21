@@ -29,7 +29,7 @@ end
 # TODO: fix this mess
 def fix_windows_path(path)
   return path unless WebDriver::Platform.os == :windows
-  if $__webdriver__ == :ie
+  if $__webdriver__ == :ie || ($__webdriver__ == :remote && ENV['REMOTE_BROWSER_VERSION'] == 'internet_explorer')
     path = path[%r[file://(.*)], 1]
     path.gsub!("/", '\\')
 
