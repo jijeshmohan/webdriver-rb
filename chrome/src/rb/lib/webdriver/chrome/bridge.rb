@@ -79,7 +79,7 @@ module WebDriver
       end
 
       def get_all_cookies
-        execute :request => 'getAllCookies'
+        execute :request => 'getCookies'
       end
 
       def delete_all_cookies
@@ -214,7 +214,7 @@ module WebDriver
       end
 
       def get_active_element
-        Element.new self, element_id_from(execute(:request => 'getActiveElement'))
+        Element.new self, element_id_from(execute(:request => 'switchToActiveElement'))
       end
       alias_method :switch_to_active_element, :get_active_element
 
