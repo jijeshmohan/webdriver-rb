@@ -18,9 +18,7 @@ describe "WebDriver::TargetLocator" do
 
   it "should find active element" do
     driver.navigate.to Page.xhtml
-    # FIXME: shared Element class
-    # driver.switch_to.active_element.should be_an_instance_of(WebDriver::Remote::Element)
-    driver.switch_to.active_element.class.name.should =~ /Element$/
+    driver.switch_to.active_element.should be_an_instance_of(WebDriver::Element)
   end
 
 end
