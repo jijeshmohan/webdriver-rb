@@ -42,8 +42,9 @@ end
 def driver
   $driver ||= case $__webdriver__
               when :remote
+                browser_version = ENV['REMOTE_BROWSER_VERSION'] || 'firefox'
                 WebDriver::Driver.new :remote, :server_url           => "http://localhost:8080/",
-                                               :desired_capabilities => WebDriver::Remote::Capabilities.firefox
+                                               :desired_capabilities => WebDriver::Remote::Capabilities.send(browser_version)
               when :ie
                 WebDriver::Driver.new :ie
               when :chrome
