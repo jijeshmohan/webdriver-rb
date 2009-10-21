@@ -42,6 +42,7 @@ module WebDriver
       end
 
       def quit
+        @launcher.kill # FIXME: let chrome extension take care of this
         execute :request => 'quit'
       end
 
