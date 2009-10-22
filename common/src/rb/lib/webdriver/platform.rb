@@ -23,6 +23,7 @@ module WebDriver
         os = platform()
 
         if os == :java
+          require "java"
           os_name = java.lang.System.getProperty("os.name")
           os = case os_name
                 when /windows/i then :windows
@@ -51,6 +52,7 @@ module WebDriver
     def win?
       os == :windows
     end
+    alias_method :windows?, :win?
 
 
 

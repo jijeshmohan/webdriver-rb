@@ -10,35 +10,38 @@ module WebDriver
       end
 
       def get(url)
-        execute :request => 'url', :url => url
+        execute :request => 'get',
+                :url     => url
       end
 
-      def back
+      def goBack
         execute :request => 'goBack'
       end
 
-      def forward
+      def goForward
         execute :request => 'goForward'
       end
 
-      def current_url
+      def getCurrentUrl
         execute :request => 'getCurrentUrl'
       end
 
-      def get_title
+      def getTitle
         execute :request => 'getTitle'
       end
 
-      def page_source
+      def getPageSource
         execute :request => 'getPageSource'
       end
 
-      def switch_to_window(name)
-        execute :request => 'switchToWindow', :windowName => name
+      def switchToWindow(name)
+        execute :request    => 'switchToWindow',
+                :windowName => name
       end
 
-      def switch_to_frame(id)
-        execute :request => 'switchToFrameByName', :name => id
+      def switchToFrame(id)
+        execute :request => 'switchToFrameByName',
+                :name    => id
       end
 
       def quit
@@ -50,96 +53,100 @@ module WebDriver
         execute :request => 'close'
       end
 
-      def get_window_handles
+      def getWindowHandles
         execute :request => 'getWindowHandles'
       end
 
-      def get_current_window_handle
+      def getCurrentWindowHandle
         execute :request => 'getCurrentWindowHandle'
       end
 
-      def set_speed(value)
+      def setSpeed(value)
         @speed = value
       end
 
-      def get_speed
+      def getSpeed
         @speed
       end
 
-      def execute_script(script, *args)
+      def executeScript(script, *args)
         raise NotImplementedError
-        execute :request => 'execute', :script => script, :args => args
+        execute :request => 'executeScript',
+                :script  => script,
+                :args    => args
       end
 
-      def add_cookie(cookie)
-        execute :request => 'addCookie', :cookie => cookie
+      def addCookie(cookie)
+        execute :request => 'addCookie',
+                :cookie  => cookie
       end
 
-      def delete_cookie(name)
-        execute :request => 'deleteCookie', :name => name
+      def deleteCookie(name)
+        execute :request => 'deleteCookie',
+                :name    => name
       end
 
-      def get_all_cookies
+      def getCookies
         execute :request => 'getCookies'
       end
 
-      def delete_all_cookies
+      def deleteAllCookies
         execute :request => 'deleteAllCookies'
       end
 
-      def find_element_by_class_name(parent, class_name)
+      def findElementByClassName(parent, class_name)
         find_element_by 'class name', class_name, parent
       end
 
-      def find_elements_by_class_name(parent, class_name)
+      def findElementsByClassName(parent, class_name)
         find_elements_by 'class name', class_name, parent
       end
 
-      def find_element_by_id(parent, id)
+      def findElementById(parent, id)
         find_element_by 'id', id, parent
       end
 
-      def find_elements_by_id(parent, id)
+      def findElementsById(parent, id)
         find_elements_by 'id', id, parent
       end
 
-      def find_element_by_link_text(parent, link_text)
+      def findElementByLinkText(parent, link_text)
         find_element_by 'link text', link_text, parent
       end
 
-      def find_elements_by_link_text(parent, link_text)
+      def findElementsByLinkText(parent, link_text)
         find_elements_by 'link text', link_text, parent
       end
 
-      def find_element_by_partial_link_text(parent, link_text)
+      def findElementByPartialLinkText(parent, link_text)
         find_element_by 'partial link text', link_text, parent
       end
 
-      def find_elements_by_partial_link_text(parent, link_text)
+      def findElementsByPartialLinkText(parent, link_text)
         find_elements_by 'partial link text', link_text, parent
       end
 
-      def find_element_by_name(parent, name)
+      def findElementByName(parent, name)
         find_element_by 'name', name, parent
       end
 
-      def find_elements_by_name(parent, name)
+      def findElementsByName(parent, name)
         find_elements_by 'name', name, parent
       end
 
-      def find_element_by_tag_name(parent, tag_name)
+      def findElementByTagName(parent, tag_name)
         find_element_by 'tag name', tag_name, parent
       end
 
-      def find_elements_by_tag_name(parent, tag_name)
+      def findElementsByTagName(parent, tag_name)
         find_elements_by 'tag name', tag_name, parent
       end
 
-      def find_element_by_xpath(parent, xpath)
+      def findElementByXpath(parent, xpath)
         find_element_by 'xpath', xpath, parent
       end
 
-      def find_elements_by_xpath(parent, xpath)
+      def findElementsByXpath(parent, xpath)
         find_elements_by 'xpath', xpath, parent
       end
 
@@ -148,83 +155,103 @@ module WebDriver
       # Element functions
       #
 
-      def click_element(element)
-        execute :request => 'clickElement', :elementId => element
+      def clickElement(element)
+        execute :request   => 'clickElement',
+                :elementId => element
       end
 
-      def get_element_tag_name(element)
-        execute :request => 'getElementTagName', :elementId => element
+      def getElementTagName(element)
+        execute :request   => 'getElementTagName',
+                :elementId => element
       end
 
-      def get_element_attribute(element, name)
-        execute :request => 'getElementAttribute', :elementId => element, :attribute => name
+      def getElementAttribute(element, name)
+        execute :request   => 'getElementAttribute',
+                :elementId => element,
+                :attribute => name
       end
 
-      def get_element_value(element)
-        execute :request => 'getElementValue', :elementId => element
+      def getElementValue(element)
+        execute :request   => 'getElementValue',
+                :elementId => element
       end
 
-      def get_element_text(element)
-        execute :request => 'getElementText', :elementId => element
+      def getElementText(element)
+        execute :request   => 'getElementText',
+                :elementId => element
       end
 
-      def get_element_location(element)
-        data = execute :request => 'getElementLocation', :elementId => element
+      def getElementLocation(element)
+        data = execute :request   => 'getElementLocation',
+                       :elementId => element
 
         Point.new data['x'], data['y']
       end
 
-      def get_element_size(element)
-        execute :request => 'getElementSize', :elementId => element
+      def getElementSize(element)
+        execute :request   => 'getElementSize',
+                :elementId => element
       end
 
-      def send_keys(element, string)
-        execute :request => 'sendElementKeys', :elementId => element, :keys => string.split(//u)
+      def sendElementKeys(element, string)
+        execute :request   => 'sendElementKeys',
+                :elementId => element,
+                :keys      => string.split(//u)
       end
 
-      def clear_element(element)
-        execute :request => 'clearElement', :elementId => element
+      def clearElement(element)
+        execute :request   => 'clearElement',
+                :elementId => element
       end
 
-      def is_element_enabled(element)
-        execute :request => 'isElementEnabled', :elementId => element
+      def isElementEnabled(element)
+        execute :request   => 'isElementEnabled',
+                :elementId => element
       end
 
-      def is_element_selected(element)
-        execute :request => 'isElementSelected', :elementId => element
+      def isElementSelected(element)
+        execute :request   => 'isElementSelected',
+                :elementId => element
       end
 
-      def is_element_displayed(element)
-        execute :request => 'isElementDisplayed', :elementId => element
+      def isElementDisplayed(element)
+        execute :request   => 'isElementDisplayed',
+                :elementId => element
       end
 
-      def submit_element(element)
-        execute :request => 'submitElement', :elementId => element
+      def submitElement(element)
+        execute :request   => 'submitElement',
+                :elementId => element
       end
 
-      def toggle_element(element)
-        execute :request => 'toggleElement', :elementId => element
+      def toggleElement(element)
+        execute :request   => 'toggleElement',
+                :elementId => element
       end
 
-      def set_element_selected(element)
-        execute :request => 'setElementSelected', :elementId => element
+      def setElementSelected(element)
+        execute :request   => 'setElementSelected',
+                :elementId => element
       end
 
-      def get_value_of_css_property(element, prop)
-        execute :request => 'getElementValueOfCssProperty', :elementId => element, :css => prop
+      def getElementValueOfCssProperty(element, prop)
+        execute :request   => 'getElementValueOfCssProperty',
+                :elementId => element,
+                :css       => prop
       end
 
-      def get_active_element
+      def getActiveElement
         Element.new self, element_id_from(execute(:request => 'switchToActiveElement'))
       end
-      alias_method :switch_to_active_element, :get_active_element
+      alias_method :switchToActiveElement, :getActiveElement
 
-      def hover
-        execute :request => 'hoverElement', :elementId => element
+      def hoverOverElement
+        execute :request   => 'hoverOverElement',
+                :elementId => element
       end
 
-      def drag_and_drop_by(element, rigth_by, down_by)
-        raise NotImplementedError
+      def dragElement(element, rigth_by, down_by)
+        raise UnsupportedOperationError, "drag and drop unsupported in Chrome"
         execute :drag_element, {:id => element}, element, rigth_by, down_by
       end
 
@@ -232,9 +259,14 @@ module WebDriver
 
       def find_element_by(how, what, parent = nil)
         if parent
-          id = execute :request => 'findChildElement', :id => parent, :using => how, :value => what
+          id = execute :request => 'findChildElement',
+                       :id      => parent,
+                       :using   => how,
+                       :value   => what
         else
-          id = execute :request => 'findElement', :using => how, :value => what
+          id = execute :request => 'findElement',
+                       :using   => how,
+                       :value   => what
         end
 
         Element.new self, element_id_from(id)
@@ -242,9 +274,14 @@ module WebDriver
 
       def find_elements_by(how, what, parent = nil)
         if parent
-          ids = execute :request => 'findChildElements', :id => parent, :using => how, :value => what
+          ids = execute :request => 'findChildElements',
+                        :id      => parent,
+                        :using   => how,
+                        :value   => what
         else
-          ids = execute :request => 'findElements', :using => how, :value => what
+          ids = execute :request => 'findElements',
+                        :using   => how,
+                        :value   => what
         end
 
         ids.map { |id| Element.new self, element_id_from(id) }

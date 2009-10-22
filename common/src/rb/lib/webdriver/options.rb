@@ -8,40 +8,40 @@ module WebDriver
     def add_cookie(opts = {})
       raise ArgumentError, "name is required" unless opts[:name]
       raise ArgumentError, "value is required" unless opts[:value]
-      
+
       opts[:path] ||= "/"
       opts[:secure] ||= false
-      
-      @bridge.add_cookie opts
+
+      @bridge.addCookie opts
     end
 
     def delete_cookie(name)
-      @bridge.delete_cookie name
+      @bridge.deleteCookie name
     end
 
     def delete_all_cookies
-      @bridge.delete_all_cookies
+      @bridge.deleteAllCookies
     end
 
     def all_cookies
-      @bridge.get_all_cookies.map do |cookie|
-        { 
+      @bridge.getAllCookies.map do |cookie|
+        {
           :name    => cookie["name"],
           :value   => cookie["value"],
           :path    => cookie["path"],
           :domain  => cookie["domain"],
           :expires => nil,
-          :secure  => cookie["secure"] 
+          :secure  => cookie["secure"]
         }
       end
     end
 
     def speed
-      @bridge.get_speed.downcase.to_sym
+      @bridge.getSpeed.downcase.to_sym
     end
 
     def speed=(speed)
-      @bridge.set_speed(speed.to_s.upcase)
+      @bridge.setSpeed(speed.to_s.upcase)
     end
 
   end

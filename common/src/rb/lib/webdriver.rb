@@ -11,8 +11,6 @@ require "webdriver/find"
 require "webdriver/driver"
 require "webdriver/element"
 
-
-
 module WebDriver
   Point     = Struct.new(:x, :y)
   Dimension = Struct.new(:width, :heigth)
@@ -22,3 +20,4 @@ module WebDriver
   autoload :Chrome, 'webdriver/chrome'
 end
 
+Thread.abort_on_exception = true

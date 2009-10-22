@@ -34,7 +34,7 @@ describe "Options" do
   it "should be able to get and set speed" do
     driver.manage.speed = :slow
     driver.manage.speed.should == :slow
-    
+
     driver.manage.speed = :fast
     driver.manage.speed.should == :fast
   end

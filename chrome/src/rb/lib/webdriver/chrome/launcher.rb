@@ -45,7 +45,7 @@ module WebDriver
       end
 
       def wrap_in_quotes_if_neccessary(str)
-        PLATFORM == :windows ? %{"#{str}"} : str
+        Platform.win? ? %{"#{str}"} : str
       end
 
       def launch_binary(*args)

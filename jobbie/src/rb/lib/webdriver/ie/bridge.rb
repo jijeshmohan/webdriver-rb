@@ -19,38 +19,38 @@ module WebDriver
                          "Cannot get url #{url.inspect}"
       end
 
-      def current_url
+      def getCurrentUrl
         create_string do |wrapper|
           check_error_code Lib.wdGetCurrentUrl(@driver_pointer, wrapper),
                            "Unable to get current URL"
         end
       end
 
-      def back
+      def goBack
         check_error_code Lib.wdGoBack(@driver_pointer),
                          "Cannot navigate back"
       end
 
-      def forward
+      def goForward
         check_error_code Lib.wdGoForward(@driver_pointer),
                          "Cannot navigate back"
       end
 
-      def get_title
+      def getTitle
         create_string do |wrapper|
           check_error_code Lib.wdGetTitle(@driver_pointer, wrapper),
                            "Unable to get title"
         end
       end
 
-      def page_source
+      def getPageSource
         create_string do |wrapper|
           check_error_code Lib.wdGetPageSource(@driver_pointer, wrapper),
                            "Unable to get page source"
         end
       end
 
-      def get_visible
+      def getBrowserVisible
         int_ptr = FFI::MemoryPointer.new :int
         check_error_code Lib.wdGetVisible(@driver_pointer, int_ptr), "Unable to determine if browser is visible"
 
@@ -59,22 +59,22 @@ module WebDriver
         int_ptr.free
       end
 
-      def set_visible(bool)
+      def setBrowserVisible(bool)
         check_error_code Lib.wdSetVisible(@driver_pointer, bool ? 1 : 0),
                          "Unable to change the visibility of the browser"
       end
 
-      def switch_to_window(id)
+      def switchToWindow(id)
         check_error_code Lib.wdSwitchToWindow(@driver_pointer, wstring_ptr(id)),
                          "Unable to locate window #{id.inspect}"
       end
 
-      def switch_to_frame(id)
+      def switchToFrame(id)
         check_error_code Lib.wdSwitchToFrame(@driver_pointer, wstring_ptr(id)),
                          "Unable to locate frame #{id.inspect}"
       end
 
-      def switch_to_active_element
+      def switchToActiveElement
         create_element do |ptr|
           check_error_code Lib.wdSwitchToActiveElement(@driver_pointer, ptr),
                            "Unable to switch to active element"
@@ -82,7 +82,7 @@ module WebDriver
       end
 
       def quit
-        get_window_handles.each do |handle|
+        getWindowHandles.each do |handle|
           switch_to_window handle rescue nil # TODO: rescue specific exceptions
           close
         end
@@ -97,7 +97,7 @@ module WebDriver
         check_error_code Lib.wdClose(@driver_pointer), "Unable to close driver"
       end
 
-      def get_window_handles
+      def getWindowHandles
         raw_handles = FFI::MemoryPointer.new :pointer
         check_error_code Lib.wdGetAllWindowHandles(@driver_pointer, raw_handles),
                          "Unable to obtain all window handles"
@@ -106,14 +106,14 @@ module WebDriver
         # TODO: who calls raw_handles.free if exception is raised?
       end
 
-      def get_current_window_handle
+      def getCurrentWindowHandle
         create_string do |string_pointer|
           check_error_code Lib.wdGetCurrentWindowHandle(@driver_pointer, string_pointer),
                            "Unable to obtain current window handle"
         end
       end
 
-      def execute_script(script, *args)
+      def executeScript(script, *args)
         script_args_ref = FFI::MemoryPointer.new :pointer
         result          = Lib.wdNewScriptArgs(script_args_ref, args.size)
 
@@ -135,7 +135,7 @@ module WebDriver
         Lib.wdFreeScriptArgs(args_pointer) if args_pointer
       end
 
-      def wait_for_load_to_complete
+      def waitForLoadToComplete
         Lib.wdWaitForLoadToComplete(@driver_pointer)
       end
 
@@ -143,26 +143,26 @@ module WebDriver
       # Configuration
       #
 
-      def add_cookie(opts)
-        raise NotImplementedError, "depends on execute_script?"
+      def addCookie(opts)
+        raise NotImplementedError
         check_error_code Lib.wdAddCookie(@driver_pointer, nil),
                          "Unable to add cookie"
       end
 
-      def delete_cookie(name)
+      def deleteCookie(name)
         raise NotImplementedError
         # missing from IE driver
       end
 
-      def delete_all_cookies
+      def deleteAllCookies
         raise NotImplementedError
       end
 
-      def set_speed(speed)
+      def setSpeed(speed)
         @speed = speed
       end
 
-      def get_speed
+      def getSpeed
         @speed
       end
 
@@ -170,7 +170,7 @@ module WebDriver
       # Finders
       #
 
-      def find_element_by_class_name(parent, class_name)
+      def findElementByClassName(parent, class_name)
         # TODO: argument checks
 
         create_element do |raw_element|
@@ -179,7 +179,7 @@ module WebDriver
         end
       end
 
-      def find_elements_by_class_name(parent, class_name)
+      def findElementsByClassName(parent, class_name)
         # TODO: argument checks
 
         create_element_collection do |raw_elements|
@@ -188,77 +188,77 @@ module WebDriver
         end
       end
 
-      def find_element_by_id(parent, id)
+      def findElementById(parent, id)
         create_element do |raw_element|
           check_error_code Lib.wdFindElementById(@driver_pointer, parent, wstring_ptr(id), raw_element),
                            "Unable to find element by id using #{id.inspect}"
         end
       end
 
-      def find_elements_by_id(parent, id)
+      def findElementsById(parent, id)
         create_element_collection do |raw_elements|
           check_error_code Lib.wdFindElementsById(@driver_pointer, parent, wstring_ptr(id), raw_elements),
                            "Unable to find elements by id using #{id.inspect}"
         end
       end
 
-      def find_element_by_link_text(parent, link_text)
+      def findElementByLinkText(parent, link_text)
         create_element do |raw_element|
           check_error_code Lib.wdFindElementByLinkText(@driver_pointer, parent, wstring_ptr(link_text), raw_element),
                            "Unable to find element by link text using #{link_text.inspect}"
         end
       end
 
-      def find_elements_by_link_text(parent, link_text)
+      def findElementsByLinkText(parent, link_text)
         create_element_collection do |raw_elements|
           check_error_code Lib.wdFindElementsByLinkText(@driver_pointer, parent, wstring_ptr(link_text), raw_elements),
                            "Unable to find elements by link text using #{link_text.inspect}"
         end
       end
 
-      def find_element_by_partial_link_text(parent, link_text)
+      def findElementByPartialLinkText(parent, link_text)
         create_element do |raw_element|
           check_error_code Lib.wdFindElementByPartialLinkText(@driver_pointer, parent, wstring_ptr(link_text), raw_element),
                            "Unable to find element by partial link text using #{link_text.inspect}"
         end
       end
 
-      def find_elements_by_partial_link_text(parent, link_text)
+      def findElementsByPartialLinkText(parent, link_text)
         create_element_collection do |raw_elements|
           check_error_code Lib.wdFindElementsByPartialLinkText(@driver_pointer, parent, wstring_ptr(link_text), raw_elements),
                            "Unable to find elements by partial link text using #{link_text.inspect}"
         end
       end
 
-      def find_element_by_name(parent, name)
+      def findElementByName(parent, name)
         create_element do |raw_element|
           check_error_code Lib.wdFindElementByName(@driver_pointer, parent, wstring_ptr(name), raw_element),
                            "Unable to find element by name using #{name.inspect}"
         end
       end
 
-      def find_elements_by_name(parent, name)
+      def findElementsByName(parent, name)
         create_element_collection do |raw_elements|
           check_error_code Lib.wdFindElementsByName(@driver_pointer, parent, wstring_ptr(name), raw_elements),
                            "Unable to find elements by name using #{name.inspect}"
         end
       end
 
-      def find_element_by_tag_name(parent, tag_name)
+      def findElementByTagName(parent, tag_name)
         create_element do |raw_element|
           check_error_code Lib.wdFindElementByTagName(@driver_pointer, parent, wstring_ptr(tag_name), raw_element),
                            "Unable to find element by tag name using #{tag_name.inspect}"
         end
       end
 
-      def find_elements_by_tag_name(parent, tag_name)
+      def findElementsByTagName(parent, tag_name)
         create_element_collection do |raw_elements|
           check_error_code Lib.wdFindElementsByTagName(@driver_pointer, parent, wstring_ptr(tag_name), raw_element),
                            "Unable to find elements by tag name using #{tag_name.inspect}"
         end
       end
 
-      def find_element_by_xpath(parent, xpath)
+      def findElementByXpath(parent, xpath)
         create_element do |raw_element|
           check_error_code Lib.wdFindElementByXPath(@driver_pointer, parent, wstring_ptr(xpath), raw_element),
                            "Unable to find element by xpath using #{xpath.inspect}"
@@ -266,7 +266,7 @@ module WebDriver
         end
       end
 
-      def find_elements_by_xpath(parent, xpath)
+      def findElementsByXpath(parent, xpath)
         create_element_collection do |raw_elements|
           check_error_code Lib.wdFindElementsByXPath(@driver_pointer, parent, wstring_ptr(xpath), raw_elements),
                            "Unable to find elements by xpath using #{xpath.inspect}"
@@ -279,46 +279,46 @@ module WebDriver
       # Element functions
       #
 
-      def click_element(element_pointer)
+      def clickElement(element_pointer)
         check_error_code Lib.wdeClick(element_pointer), "Unable to click element"
       end
 
-      def get_element_tag_name(element_pointer)
+      def getElementTagName(element_pointer)
         create_string do |string_pointer|
           check_error_code Lib.wdeGetTagName(element_pointer, string_pointer),
                            "Unable to get tag name"
         end
       end
 
-      def get_element_attribute(element_pointer, name)
+      def getElementAttribute(element_pointer, name)
         create_string do |string_pointer|
           check_error_code Lib.wdeGetAttribute(element_pointer, wstring_ptr(name), string_pointer),
                            "Unable to get attribute #{name.inspect}"
         end
       end
 
-      def get_element_value(element_pointer)
-        get_element_attribute(element_pointer, 'value').gsub("\r\n", "\n")
+      def getElementValue(element_pointer)
+        getElementAttribute(element_pointer, 'value').gsub("\r\n", "\n")
       end
 
-      def get_element_text(element_pointer)
+      def getElementText(element_pointer)
         create_string do |string_pointer|
           check_error_code Lib.wdeGetText(element_pointer, string_pointer),
                            "Unable to get text"
         end.gsub("\r\n", "\n")
       end
 
-      def send_keys(element_pointer, string)
+      def sendKeysToElement(element_pointer, string)
         check_error_code Lib.wdeSendKeys(element_pointer, wstring_ptr(string)),
                          "Unable to send keys to #{self}"
-        wait_for_load_to_complete
+        waitForLoadToComplete
       end
 
-      def clear_element(element_pointer)
+      def clearElement(element_pointer)
         check_error_code Lib.wdeClear(element_pointer), "Unable to clear element"
       end
 
-      def is_element_enabled(element_pointer)
+      def isElementEnabled(element_pointer)
         int_ptr = FFI::MemoryPointer.new(:int)
         check_error_code Lib.wdeIsEnabled(element_pointer, int_ptr),
                          "Unable to get enabled state"
@@ -328,7 +328,7 @@ module WebDriver
         int_ptr.free
       end
 
-      def is_element_selected(element_pointer)
+      def isElementSelected(element_pointer)
         int_ptr = FFI::MemoryPointer.new(:int)
         check_error_code Lib.wdeIsSelected(element_pointer, int_ptr),
                          "Unable to get selected state"
@@ -338,7 +338,7 @@ module WebDriver
         int_ptr.free
       end
 
-      def is_element_displayed(element_pointer)
+      def isElementDisplayed(element_pointer)
         int_ptr = FFI::MemoryPointer.new :int
         check_error_code Lib.wdeIsDisplayed(element_pointer, int_ptr), "Unable to check visibilty"
 
@@ -347,11 +347,11 @@ module WebDriver
         int_ptr.free
       end
 
-      def submit_element(element_pointer)
+      def submitElement(element_pointer)
         check_error_code Lib.wdeSubmit(element_pointer), "Unable to submit element"
       end
 
-      def toggle_element(element_pointer)
+      def toggleElement(element_pointer)
         int_ptr = FFI::MemoryPointer.new :int
         result = Lib.wdeToggle(element_pointer, int_ptr)
 
@@ -367,22 +367,22 @@ module WebDriver
         int_ptr.free
       end
 
-      def set_element_selected(element_pointer)
+      def setElementSelected(element_pointer)
         check_error_code Lib.wdeSetSelected(element_pointer), "Unable to select element"
       end
 
-      def get_value_of_css_property(element_pointer, prop)
+      def getElementValueOfCssProperty(element_pointer, prop)
         create_string do |string_pointer|
           check_error_code Lib.wdeGetValueOfCssProperty(element_pointer, wstring_ptr(prop), string_pointer),
                            "Unable to get value of css property: #{prop.inspect}"
         end
       end
 
-      def hover
+      def hoverOverElement
         raise NotImplementedError
       end
 
-      def drag_and_drop_by(element_pointer, right_by, down_by)
+      def dragElement(element_pointer, right_by, down_by)
         # TODO: check return values?
         hwnd                = FFI::MemoryPointer.new :pointer
         x, y, width, height = Array.new(4) { FFI::MemoryPointer.new :long }
@@ -402,7 +402,7 @@ module WebDriver
         [hwnd, x, y, width, height].each { |pointer| pointer.free }
       end
 
-      def get_element_location(element_pointer)
+      def getElementLocation(element_pointer)
         x = FFI::MemoryPointer.new :long
         y = FFI::MemoryPointer.new :long
 
@@ -414,7 +414,7 @@ module WebDriver
         y.free
       end
 
-      def get_element_size(element_pointer)
+      def getElementSize(element_pointer)
         width  = FFI::MemoryPointer.new :long
         height = FFI::MemoryPointer.new :long
 

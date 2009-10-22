@@ -26,7 +26,7 @@ module WebDriver::SpecHelper
                   elsif $LOAD_PATH.any? { |p| p.include?("chrome") }
                     :chrome
                   else
-                    abort "not sure what driver to run specs for"
+                    raise "not sure what driver to run specs for"
                   end
 
     end

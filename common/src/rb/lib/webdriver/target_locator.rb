@@ -6,15 +6,15 @@ module WebDriver
     end
 
     def frame(id)
-      @bridge.switch_to_frame id
+      @bridge.switchToFrame id
     end
 
     def window(id)
-      @bridge.switch_to_window id
+      @bridge.switchToWindow id
     end
 
     def active_element
-      @bridge.switch_to_active_element
+      @bridge.switchToActiveElement
     end
 
   end

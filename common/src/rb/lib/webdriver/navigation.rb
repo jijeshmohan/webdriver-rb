@@ -10,11 +10,11 @@ module WebDriver
     end
 
     def back
-      @driver.bridge.back
+      @driver.bridge.goBack
     end
 
     def forward
-      @driver.bridge.forward
+      @driver.bridge.goForward
     end
 
   end

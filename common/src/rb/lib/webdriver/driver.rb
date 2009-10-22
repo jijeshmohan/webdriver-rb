@@ -36,23 +36,23 @@ module WebDriver
     end
 
     def current_url
-      bridge.current_url
+      bridge.getCurrentUrl
     end
 
     def title
-      bridge.get_title
+      bridge.getTitle
     end
 
     def page_source
-      bridge.page_source
+      bridge.getPageSource
     end
 
     def visible?
-      bridge.get_visible
+      bridge.getBrowserVisible
     end
 
     def visible=(bool)
-      bridge.set_visible bool
+      bridge.setBrowserVisible bool
     end
 
     def quit
@@ -64,15 +64,15 @@ module WebDriver
     end
 
     def window_handles
-      bridge.get_window_handles
+      bridge.getWindowHandles
     end
 
     def window_handle
-      bridge.get_current_window_handle
+      bridge.getCurrentWindowHandle
     end
 
     def execute_script(script, *args)
-      bridge.execute_script(script, *args)
+      bridge.executeScript(script, *args)
     end
 
     #-------------------------------- sugar  --------------------------------

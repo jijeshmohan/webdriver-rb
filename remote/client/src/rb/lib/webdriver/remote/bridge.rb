@@ -86,32 +86,32 @@ module WebDriver
         execute :forward
       end
 
-      def current_url
-        execute :current_url
+      def getCurrentUrl
+        execute :getCurrentUrl
       end
 
-      def get_title
-        execute :get_title
+      def getTitle
+        execute :getTitle
       end
 
-      def page_source
-        execute :page_source
+      def getPageSource
+        execute :getPageSource
       end
 
-      def get_visible
-        execute :get_visible
+      def getVisible
+        execute :getVisible
       end
 
-      def set_visible(bool)
-        execute :set_visible, {}, bool
+      def setVisible(bool)
+        execute :setVisible, {}, bool
       end
 
-      def switch_to_window(name)
-        execute :switch_to_window, :name => name
+      def switchToWindow(name)
+        execute :switchToWindow, :name => name
       end
 
-      def switch_to_frame(id)
-        execute :switch_to_frame, :id => id
+      def switchToFrame(id)
+        execute :switchToFrame, :id => id
       end
 
       def quit
@@ -126,23 +126,23 @@ module WebDriver
         execute :refresh
       end
 
-      def get_window_handles
-        execute :get_window_handles
+      def getWindowHandles
+        execute :getWindowHandles
       end
 
-      def get_current_window_handle
-        execute :get_current_window_handle
+      def getCurrentWindowHandle
+        execute :getCurrentWindowHandle
       end
 
-      def set_speed(value)
-        execute :set_speed, {}, value
+      def setSpeed(value)
+        execute :setSpeed, {}, value
       end
 
-      def get_speed
-        execute :get_speed
+      def getSpeed
+        execute :getSpeed
       end
 
-      def execute_script(script, *args)
+      def executeScript(script, *args)
         raise UnsupportedOperationError, "underlying webdriver instace does not support javascript" unless capabilities.javascript?
 
         typed_args = args.map do |arg|
@@ -160,7 +160,7 @@ module WebDriver
           end
         end
 
-        response = raw_execute :execute_script, {}, script, typed_args
+        response = raw_execute :executeScript, {}, script, typed_args
 
         # un-type the result value
         result = response['value']
@@ -172,75 +172,75 @@ module WebDriver
         end
       end
 
-      def add_cookie(cookie)
-        execute :add_cookie, {}, cookie
+      def addCookie(cookie)
+        execute :addCookie, {}, cookie
       end
 
-      def delete_cookie(name)
-        execute :delete_cookie, :name => name
+      def deleteCookie(name)
+        execute :deleteCookie, :name => name
       end
 
-      def get_all_cookies
-        execute :get_all_cookies
+      def getCookies
+        execute :getAllCookies
       end
 
-      def delete_all_cookies
-        execute :delete_all_cookies
+      def deleteAllCookies
+        execute :deleteAllCookies
       end
 
-      def find_element_by_class_name(parent, class_name)
+      def findElementByClassName(parent, class_name)
         find_element_by 'class name', class_name, parent
       end
 
-      def find_elements_by_class_name(parent, class_name)
+      def findElementsByClassName(parent, class_name)
         find_elements_by 'class name', class_name, parent
       end
 
-      def find_element_by_id(parent, id)
+      def findElementById(parent, id)
         find_element_by 'id', id, parent
       end
 
-      def find_elements_by_id(parent, id)
+      def findElementsById(parent, id)
         find_elements_by 'id', id, parent
       end
 
-      def find_element_by_link_text(parent, link_text)
+      def findElementByLinkText(parent, link_text)
         find_element_by 'link text', link_text, parent
       end
 
-      def find_elements_by_link_text(parent, link_text)
+      def findElementsByLinkText(parent, link_text)
         find_elements_by 'link text', link_text, parent
       end
 
-      def find_element_by_partial_link_text(parent, link_text)
+      def findElementByPartialLinkText(parent, link_text)
         find_element_by 'partial link text', link_text, parent
       end
 
-      def find_elements_by_partial_link_text(parent, link_text)
+      def findElementsByPartialLinkText(parent, link_text)
         find_elements_by 'partial link text', link_text, parent
       end
 
-      def find_element_by_name(parent, name)
+      def findElementByName(parent, name)
         find_element_by 'name', name, parent
       end
 
-      def find_elements_by_name(parent, name)
+      def findElementsByName(parent, name)
         find_elements_by 'name', name, parent
       end
 
-      def find_element_by_tag_name(parent, tag_name)
+      def findElementByTagName(parent, tag_name)
         find_element_by 'tag name', tag_name, parent
       end
 
-      def find_elements_by_tag_name(parent, tag_name)
+      def findElementsByTagName(parent, tag_name)
         find_elements_by 'tag name', tag_name, parent
       end
 
-      def find_element_by_xpath(parent, xpath)
+      def findElementByXpath(parent, xpath)
         find_element_by 'xpath', xpath, parent
       end
 
-      def find_elements_by_xpath(parent, xpath)
+      def findElementsByXpath(parent, xpath)
         find_elements_by 'xpath', xpath, parent
       end
 
@@ -249,84 +249,84 @@ module WebDriver
       # Element functions
       #
 
-      def click_element(element)
-        execute :click_element, :id => element
+      def clickElement(element)
+        execute :clickElement, :id => element
       end
 
-      def get_element_tag_name(element)
-        execute :get_tag_name, :id => element
+      def getElementTagName(element)
+        execute :getElementTagName, :id => element
       end
 
-      def get_element_attribute(element, name)
-        execute :get_element_attribute, :id => element, :name => name
+      def getElementAttribute(element, name)
+        execute :getElementAttribute, :id => element, :name => name
       end
 
-      def get_element_value(element)
-        execute :get_element_value, :id => element
+      def getElementValue(element)
+        execute :getElementValue, :id => element
       end
 
-      def get_element_text(element)
-        execute :get_element_text, :id => element
+      def getElementText(element)
+        execute :getElementText, :id => element
       end
 
       def get_element_location(element)
-        data = execute :get_element_location, :id => element
+        data = execute :getElementLocation, :id => element
 
         Point.new data['x'], data['y']
       end
 
-      def get_element_size(element)
-        execute :get_element_size, :id => element
+      def getElementSize(element)
+        execute :getElementSize, :id => element
       end
 
-      def send_keys(element, string)
-        execute :send_keys, {:id => element}, {:value => string.split(//u)}
+      def sendKeysToElement(element, string)
+        execute :sendKeysToElement, {:id => element}, {:value => string.split(//u)}
       end
 
-      def clear_element(element)
-        execute :clear_element, :id => element
+      def clearElement(element)
+        execute :clearElement, :id => element
       end
 
-      def is_element_enabled(element)
-        execute :is_element_enabled, :id => element
+      def isElementEnabled(element)
+        execute :isElementEnabled, :id => element
       end
 
-      def is_element_selected(element)
-        execute :is_element_selected, :id => element
+      def isElementSelected(element)
+        execute :isElementSelected, :id => element
       end
 
-      def is_element_displayed(element)
-        execute :is_element_displayed, :id => element
+      def isElementDisplayed(element)
+        execute :isElementDisplayed, :id => element
       end
 
-      def submit_element(element)
-        execute :submit_element, :id => element
+      def submitElement(element)
+        execute :submitElement, :id => element
       end
 
-      def toggle_element(element)
-        execute :toggle_element, :id => element
+      def toggleElement(element)
+        execute :toggleElement, :id => element
       end
 
-      def set_element_selected(element)
-        execute :set_element_selected, :id => element
+      def setElementSelected(element)
+        execute :setElementSelected, :id => element
       end
 
-      def get_value_of_css_property(element, prop)
-        execute :get_value_of_css_property, :id => element, :property_name => prop
+      def getElementValueOfCssProperty(element, prop)
+        execute :getElementValueOfCssProperty, :id => element, :property_name => prop
       end
 
-      def get_active_element
-        Element.new self, element_id_from(execute(:get_active_element))
+      def getActiveElement
+        Element.new self, element_id_from(execute(:getActiveElement))
       end
-      alias_method :switch_to_active_element, :get_active_element
+      alias_method :switchToActiveElement, :getActiveElement
 
-      def hover
-        execute :hover, :id => element
+      def hoverOverElement
+        execute :hoverOverElement, :id => element
       end
 
-      def drag_and_drop_by(element, rigth_by, down_by)
+      def dragElement(element, rigth_by, down_by)
         # TODO: why is element sent twice in the payload?
-        execute :drag_element, {:id => element}, element, rigth_by, down_by
+        execute :dragElement, {:id => element}, element, rigth_by, down_by
       end
 
       private
@@ -334,9 +334,9 @@ module WebDriver
       def find_element_by(how, what, parent = nil)
         if parent
           # TODO: why is how sent twice in the payload?
-          id = execute :find_element_using_element, {:id => parent, :using => how}, {:using => how, :value => what}
+          id = execute :findChildElement, {:id => parent, :using => how}, {:using => how, :value => what}
         else
-          id = execute :find_element, {}, how, what
+          id = execute :findElement, {}, how, what
         end
 
         Element.new self, element_id_from(id)
@@ -345,9 +345,9 @@ module WebDriver
       def find_elements_by(how, what, parent = nil)
         if parent
           # TODO: why is how sent twice in the payload?
-          ids = execute :find_elements_using_element, {:id => parent, :using => how}, {:using => how, :value => what}
+          ids = execute :findChildElements, {:id => parent, :using => how}, {:using => how, :value => what}
         else
-          ids = execute :find_elements, {}, how, what
+          ids = execute :findElements, {}, how, what
         end
 
         ids.map { |id| Element.new self, element_id_from(id) }

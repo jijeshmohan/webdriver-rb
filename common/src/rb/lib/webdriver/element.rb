@@ -9,75 +9,76 @@ module WebDriver
     end
 
     def click
-      bridge.click_element @id
+      bridge.clickElement @id
     end
 
     def tag_name
-      bridge.get_tag_name @id
+      bridge.getElementTagName @id
     end
 
     def value
-      bridge.get_element_value @id
+      bridge.getElementValue @id
     end
 
     def attribute(name)
-      bridge.get_element_attribute @id, name
+      bridge.getElementAttribute @id, name
     end
 
     def text
-      bridge.get_element_text @id
+      bridge.getElementText @id
     end
 
+    # FIXME: send_keys args
     def send_keys(*args)
-      args.each { |str| bridge.send_keys(@id, str) }
+      args.each { |str| bridge.sendKeysToElement(@id, str) }
     end
 
     def clear
-      bridge.clear_element @id
+      bridge.clearElement @id
     end
 
     def enabled?
-      bridge.is_element_enabled @id
+      bridge.isElementEnabled @id
     end
 
     def selected?
-      bridge.is_element_selected @id
+      bridge.isElementSelected @id
     end
 
     def displayed?
-      bridge.is_element_displayed @id
+      bridge.isElementDisplayed @id
     end
 
     def select
-      bridge.set_element_selected @id
+      bridge.setElementSelected @id
     end
 
     def submit
-      bridge.submit_element @id
+      bridge.submitElement @id
     end
 
     def toggle
-      bridge.toggle_element @id
+      bridge.toggleElement @id
     end
 
     def style(prop)
-      bridge.get_value_of_css_property @id, prop
+      bridge.getElementValueOfCssProperty @id, prop
     end
 
     def hover
-      bridge.hover @id
+      bridge.hoverOverElement @id
     end
 
     def location
-      bridge.get_element_location @id
+      bridge.getElementLocation @id
     end
 
     def size
-      bridge.get_element_size @id
+      bridge.getElementSize @id
     end
 
     def drag_and_drop_by(right_by, down_by)
-      bridge.drag_and_drop_by @id, right_by, down_by
+      bridge.dragElement @id, right_by, down_by
     end
 
     def drag_and_drop_on(other)
