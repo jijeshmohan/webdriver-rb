@@ -65,7 +65,7 @@ module WebDriver
 
 
       def create_session(desired_capabilities)
-        resp  = raw_execute :new_session, {}, desired_capabilities
+        resp  = raw_execute :newSession, {}, desired_capabilities
         @session_id = resp['sessionId'] || raise('no sessionId in returned payload')
         Capabilities.json_create resp['value']
       end
@@ -74,12 +74,12 @@ module WebDriver
         execute :get, {}, url
       end
 
-      def back
-        execute :back
+      def goBack
+        execute :goBack
       end
 
-      def forward
-        execute :forward
+      def goForward
+        execute :goForward
       end
 
       def getCurrentUrl
@@ -176,7 +176,7 @@ module WebDriver
         execute :deleteCookie, :name => name
       end
 
-      def getCookies
+      def getAllCookies
         execute :getAllCookies
       end
 
@@ -265,7 +265,7 @@ module WebDriver
         execute :getElementText, :id => element
       end
 
-      def get_element_location(element)
+      def getElementLocation(element)
         data = execute :getElementLocation, :id => element
 
         Point.new data['x'], data['y']

@@ -87,7 +87,7 @@ module WebDriver
                 :name    => name
       end
 
-      def getCookies
+      def getAllCookies
         execute :request => 'getCookies'
       end
 
@@ -194,8 +194,8 @@ module WebDriver
                 :elementId => element
       end
 
-      def sendElementKeys(element, string)
-        execute :request   => 'sendElementKeys',
+      def sendKeysToElement(element, string)
+        execute :request   => 'sendKeysToElement',
                 :elementId => element,
                 :keys      => string.split(//u)
       end
@@ -242,7 +242,7 @@ module WebDriver
       end
 
       def getActiveElement
-        Element.new self, element_id_from(execute(:request => 'switchToActiveElement'))
+        Element.new self, element_id_from(execute(:request => 'getActiveElement'))
       end
       alias_method :switchToActiveElement, :getActiveElement
 
