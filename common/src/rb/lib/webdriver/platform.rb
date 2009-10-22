@@ -3,6 +3,11 @@ module WebDriver
 
     module_function
 
+    def home
+      # jruby has an issue with ENV['HOME'] on Windows
+      @home ||= Platform.jruby? ? java.lang.System.getProperty('user.home') : ENV['HOME']
+    end
+
     def platform
       @platform ||= case RUBY_PLATFORM
                     when /java/
@@ -65,5 +70,6 @@ if __FILE__ == $0
     :ruby187? => WebDriver::Platform.ruby187?,
     :ruby19?  => WebDriver::Platform.ruby19?,
     :jruby?   => WebDriver::Platform.jruby?,
-    :win?     => WebDriver::Platform.win?
+    :win?     => WebDriver::Platform.win?,
+    :home     => WebDriver::Platform.home
 end

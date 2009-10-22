@@ -67,4 +67,3 @@ module WebDriver
   end # Chrome
 end # WebDriver
 
-Thread.abort_on_exception = true

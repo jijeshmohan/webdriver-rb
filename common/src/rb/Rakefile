@@ -3,31 +3,51 @@ begin
 rescue LoadError
 end
 
+$LOAD_PATH.unshift(File.expand_path("build"))
+$LOAD_PATH.unshift(File.expand_path("common/lib/buildtime"))
+$LOAD_PATH.unshift(File.expand_path("#{File.dirname(__FILE__)}/lib"))
+
 require "spec/rake/spectask"
-require "#{File.dirname(__FILE__)}/lib/webdriver/platform"
+require "webdriver/platform"
 
 namespace :spec do
+  SPEC_FILES = FileList["common/src/rb/spec/*_spec.rb"]
+  LIB = {
+    :chrome => "chrome/src/rb/lib",
+    :common => "common/src/rb/lib",
+    :ie     => "jobbie/src/rb/lib",
+    :remote => "remote/client/src/rb/lib",
+  }
+
+  # OUTFILE = {
+  #   :chrome => "chrome-#{WebDriver::Platform.os}",
+  #   :ie     => "ie-#{WebDriver::Platform.os}",
+  #   :remote => "remote-#{ENV['REMOTE_DRIVER_VERSION'] || 'firefox'}-#{WebDriver::Platform.os}",
+  # }
 
   desc 'Run specs for the IE driver'
   Spec::Rake::SpecTask.new :ie do |t|
+    t.spec_files = SPEC_FILES
     t.spec_opts = %W[--format html:ie-#{WebDriver::Platform.os}.html]
-    t.libs      = ["./lib", "../../../jobbie/src/rb/lib"]
+    t.libs      = [LIB[:common], LIB[:ie]]
     t.ruby_opts = %w[-rubygems] if defined?(Gem)
   end
 
   desc 'Run specs for the Remote driver'
   Spec::Rake::SpecTask.new :remote do |t|
+    t.spec_files = SPEC_FILES
     t.spec_opts = %W[--format html:remote-#{ENV['REMOTE_DRIVER_VERSION'] || 'firefox'}-#{WebDriver::Platform.os}.html]
-    t.libs      = ["./lib", "../../../remote/client/src/rb/lib"]
+    t.libs      = [LIB[:common], LIB[:remote]]
     t.ruby_opts = %w[-rubygems] if defined?(Gem)
   end
 
   desc 'Run specs for the Chrome driver'
   Spec::Rake::SpecTask.new :chrome do |t|
+    t.spec_files = SPEC_FILES
+    t.spec_opts = %W[--format specdoc]
     t.spec_opts = %W[--format html:chrome-#{WebDriver::Platform.os}.html]
-    t.libs      = ["./lib", "../../../chrome/src/rb/lib"]
+    t.libs      = [LIB[:common], LIB[:chrome]]
     t.ruby_opts = %w[-rubygems] if defined?(Gem)
   end
 
 end
-

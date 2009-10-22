@@ -6,15 +6,6 @@ require "webdriver"
 
 TEST_URL = "file://" + File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "web"))
 
-Page = OpenStruct.new(
-  :drag_and_drop => "#{TEST_URL}/dragAndDropTest.html",
-  :form          => "#{TEST_URL}/formPage.html",
-  :iframe        => "#{TEST_URL}/iframes.html",
-  :javascript    => "#{TEST_URL}/javascriptPage.html",
-  :nested        => "#{TEST_URL}/nestedElements.html",
-  :xhtml         => "#{TEST_URL}/xhtmlTest.html"
-)
-
 module WebDriver::SpecHelper
   class << self
     def driver
@@ -47,6 +38,25 @@ module WebDriver::SpecHelper
   end
 
   module Helpers
+    def environment
+      @@environment ||= begin
+        raise "needs jruby" unless WebDriver::Platform.jruby?
+        require "java"
+        require 'build/webdriver-common-test.jar'
+        Dir["common/lib/buildtime/*"].each { |jar| require jar }
+        puts "creating InProcessTestEnvironment"
+        org.openqa.selenium.environment.InProcessTestEnvironment.new
+      end
+    end
+
+    def app_server
+      @app_server ||= environment.getAppServer
+    end
+
+    def url_for(filename)
+      app_server.whereIs filename
+    end
+
     def fix_windows_path(path)
       return path unless WebDriver::Platform.os == :windows
 
@@ -58,6 +68,18 @@ module WebDriver::SpecHelper
       else
         path.sub(%r[file:/{0,2}], "file:///")
       end
+    end
+
+    def driver
+      $driver ||= case WebDriver::SpecHelper.driver
+                  when :remote
+                    WebDriver::Driver.remote :server_url           => "http://localhost:8080/",
+                                             :desired_capabilities => WebDriver::Remote::Capabilities.send(ENV['REMOTE_BROWSER_VERSION'] || 'firefox')
+                  when :ie
+                    WebDriver::Driver.ie
+                  when :chrome
+                    WebDriver::Driver.chrome
+                  end
     end
   end
 
@@ -71,21 +93,6 @@ module WebDriver::SpecHelper
 end
 
 
-def driver
-  $driver ||= case WebDriver::SpecHelper.driver
-              when :remote
-                WebDriver::Driver.remote :server_url           => "http://localhost:8080/",
-                                         :desired_capabilities => WebDriver::Remote::Capabilities.send(ENV['REMOTE_BROWSER_VERSION'] || 'firefox')
-              when :ie
-                WebDriver::Driver.ie
-              when :chrome
-                WebDriver::Driver.chrome
-              end
-end
-
-at_exit { driver.quit rescue nil }
-$stdout.sync = true
-
 Spec::Runner.configure do |c|
   c.include(WebDriver::SpecHelper::Helpers)
 end
@@ -93,3 +100,20 @@ end
 class Object
   include WebDriver::SpecHelper::Guards
 end
+
+at_exit { driver.quit rescue nil }
+$stdout.sync = true
+
+# Page = OpenStruct.new(
+#   :drag_and_drop => "#{TEST_URL}/dragAndDropTest.html",
+#   :form          => "#{TEST_URL}/formPage.html",
+#   :iframe        => "#{TEST_URL}/iframes.html",
+#   :javascript    => "#{TEST_URL}/javascriptPage.html",
+#   :nested        => "#{TEST_URL}/nestedElements.html",
+#   :xhtml         => "#{TEST_URL}/xhtmlTest.html"
+# )
+#
+
+# set_trace_func proc { |event, file, line, id, binding, classname|
+#   printf "%8s %s:%-2d %10s %8s\n", event, file, line, id, classname
+# }

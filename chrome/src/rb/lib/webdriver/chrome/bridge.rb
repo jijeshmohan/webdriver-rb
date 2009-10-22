@@ -1,6 +1,7 @@
 module WebDriver
   module Chrome
     class Bridge
+
       def initialize
         @executor = CommandExecutor.new
 

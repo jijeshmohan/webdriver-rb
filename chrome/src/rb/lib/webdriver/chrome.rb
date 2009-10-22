@@ -1,6 +1,6 @@
 require "webdriver/chrome/launcher"
-require "webdriver/chrome/bridge"
 require "webdriver/chrome/command_executor"
+require "webdriver/chrome/bridge"
 
 require "fileutils"
 require "thread"

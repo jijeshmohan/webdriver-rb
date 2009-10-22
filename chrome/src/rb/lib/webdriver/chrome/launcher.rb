@@ -14,7 +14,11 @@ module WebDriver
       end
 
       def kill
-        Process.kill(9, @pid) if @pid
+        if Platform.jruby?
+          @process.destroy if @process
+        else
+          Process.kill(9, @pid) if @pid
+        end
       end
 
       private
@@ -35,9 +39,10 @@ module WebDriver
       end
 
       def launch_chrome
-        launch_binary binary_path, "--load-extension=#{wrap_in_quotes_if_neccessary tmp_extension_dir}",
-                                   "--user-data-dir=#{wrap_in_quotes_if_neccessary tmp_profile_dir}",
-                                   "--activate-on-launch"
+        launch_binary wrap_in_quotes_if_neccessary(binary_path),
+                      "--load-extension=#{wrap_in_quotes_if_neccessary tmp_extension_dir}",
+                      "--user-data-dir=#{wrap_in_quotes_if_neccessary tmp_profile_dir}",
+                      "--activate-on-launch"
       end
 
       def ext_files
@@ -61,7 +66,9 @@ module WebDriver
 
       def launch_binary_windows(*args)
         if Platform.jruby?
-          raise NotImplementedError, "check how java launches the binary"
+          puts "starting chrome: #{args.inspect}"
+          # @process = java.lang.Runtime.getRuntime.exec args.join(" ")
+          @thread = Thread.new { system(args) || raise("unable to launch Chrome: #{args.inspect}") }
         else
           require "win32/process"
           @pid = Process.create(:app_name        => args.join(" "),
@@ -78,7 +85,7 @@ module WebDriver
 
       def binary_path
         # TODO: get rid of hardcoded paths
-        @binary_path ||= "#{ENV['HOME']}\\Local Settings\\Application Data\\Google\\Chrome\\Application\\chrome.exe"
+        @binary_path ||= "#{Platform.home}\\Local Settings\\Application Data\\Google\\Chrome\\Application\\chrome.exe"
       end
 
       def ext_path
