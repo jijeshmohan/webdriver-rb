@@ -28,7 +28,11 @@ module WebDriver
 
       def assert_ok
         if @code.nil? || @code > 400
-          raise Error::ServerError, self
+          if e = error()
+            raise Error.for_remote_class(e['class']), e['message']
+          else
+            raise ServerError, self
+          end
         end
       end
 
