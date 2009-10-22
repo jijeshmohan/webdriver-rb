@@ -165,3 +165,17 @@ def junit(args)
   
   result
 end
+
+def jruby(args)
+  str = "java -jar third_party/jruby/jruby-complete-1.4.0RC1.jar "
+  str << "-I#{args[:include].join(File::PATH_SEPARATOR)} " if args[:include]
+  
+  Array(args[:require]).each do |f|
+    str << "-r#{f} "
+  end
+  
+  str << "#{args[:command]} "
+  str << args[:files].join(' ') if args[:files]
+  
+  sh str
+end

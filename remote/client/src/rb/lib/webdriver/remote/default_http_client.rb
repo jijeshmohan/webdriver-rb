@@ -1,9 +1,11 @@
+require "net/http"
+
 module WebDriver
   module Remote
     class DefaultHttpClient
       CONTENT_TYPE = "application/json"
       DEBUG        = $VERBOSE == true
-      
+
       class RetryException < StandardError; end
 
       def initialize(url)
@@ -23,10 +25,10 @@ module WebDriver
 
         begin
           request = Net::HTTP.const_get(verb.to_s.capitalize).new(url.path, headers)
-        
+
           # TODO: should be checking against a maximum redirect count
           http.request(request, payload) do |res|
-            if res.kind_of? Net::HTTPRedirection 
+            if res.kind_of? Net::HTTPRedirection
               verb, payload = :get, nil
               url           = URI.parse(res["Location"])
               raise RetryException
@@ -34,7 +36,7 @@ module WebDriver
               response = create_response(res)
             end
           end
-        
+
           response
         rescue RetryException
           retry

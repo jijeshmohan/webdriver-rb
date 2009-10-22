@@ -389,6 +389,27 @@ task :test_firefox_py => :test_firefox do
   end
 end
 
+task :test_remote_rb => [:test_common, :remote_server] do
+  jruby :include => ["common/src/rb/lib", "remote/client/src/rb/lib", "."],
+        :require => ["third_party/jruby/json-jruby.jar"],
+        :command => "-S spec",
+        :files   => Dir['common/src/rb/spec/**/*spec.rb']
+end
+
+task :test_ie_rb do
+  jruby :include => ["common/src/rb/lib", "jobbie/src/rb/lib", "."],
+        :require => ["third_party/jruby/json-jruby.jar"],
+        :command => "-S spec",
+        :files   => Dir['common/src/rb/spec/**/*spec.rb']
+end
+
+task :test_chrome_rb do
+  jruby :include => ["common/src/rb/lib", "chrome/src/rb/lib", "."],
+        :require => ["third_party/jruby/json-jruby.jar"],
+        :command => "-S spec",
+        :files   => Dir['common/src/rb/spec/**/*spec.rb']
+end
+
 task :iphone => [:iphone_server, :iphone_client]
 
 # Place-holder tasks

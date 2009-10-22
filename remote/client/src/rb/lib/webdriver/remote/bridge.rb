@@ -1,7 +1,3 @@
-require "json"
-require "net/http"
-require "uri"
-
 module WebDriver
   module Remote
 

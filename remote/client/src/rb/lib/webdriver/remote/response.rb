@@ -12,7 +12,7 @@ module WebDriver
 
       def error
         if payload['error']
-          JSON.parse(payload['value']) rescue {}
+          JSON.parse(payload['value'])
         end
       end
 

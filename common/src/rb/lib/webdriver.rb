@@ -21,3 +21,18 @@ module WebDriver
 end
 
 Thread.abort_on_exception = true
+
+begin
+  require "json"
+rescue LoadError => e
+  msg = WebDriver::Platform.jruby? ? "jruby -S gem install json-jruby" : "gem install json"
+
+
+  abort <<-END
+       #{e.message}
+
+       You need to install the json gem:
+           #{msg}
+  END
+end
+

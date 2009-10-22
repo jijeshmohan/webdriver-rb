@@ -4,7 +4,11 @@ require "pp"
 
 require "webdriver"
 
-TEST_URL = "file://" + File.expand_path(File.join(File.dirname(__FILE__), "..", "..", "web"))
+if WebDriver::Platform.jruby?
+  require "java"
+  require 'build/webdriver-common-test.jar'
+  Dir["common/lib/buildtime/*.jar", "build/*.jar"].each { |jar| require jar }
+end
 
 module WebDriver::SpecHelper
   class << self
@@ -35,17 +39,34 @@ module WebDriver::SpecHelper
     def unguarded?
       @unguarded ||= false
     end
+
+    def remote_server
+      @remote_server ||= begin
+        puts "starting remote server"
+
+        Dir['remote/common/lib/**/*.jar'].each { |j| require j }
+
+        context = org.mortbay.jetty.servlet.Context.new
+        context.setContextPath("/")
+        context.addServlet("org.openqa.selenium.remote.server.DriverServlet", "/*")
+
+        server  = org.mortbay.jetty.Server.new(8080)
+        server.setHandler context
+
+        server
+      end
+    end
   end
 
   module Helpers
     def environment
       @@environment ||= begin
-        raise "needs jruby" unless WebDriver::Platform.jruby?
-        require "java"
-        require 'build/webdriver-common-test.jar'
-        Dir["common/lib/buildtime/*"].each { |jar| require jar }
-        puts "creating InProcessTestEnvironment"
-        org.openqa.selenium.environment.InProcessTestEnvironment.new
+        if WebDriver::Platform.jruby?
+          puts "creating InProcessTestEnvironment"
+          org.openqa.selenium.environment.InProcessTestEnvironment.new
+        else
+          # WebDriver::Support::TestEnvironment.new TODO: ruby server for specs?
+        end
       end
     end
 
@@ -73,8 +94,14 @@ module WebDriver::SpecHelper
     def driver
       $driver ||= case WebDriver::SpecHelper.driver
                   when :remote
+                    # TODO: clean up remote server startup
+                    raise "needs jruby to run remote server atm" unless WebDriver::Platform.jruby?
+
+                    WebDriver::SpecHelper.remote_server.start
+                    sleep 2
+                    cap = WebDriver::Remote::Capabilities.send(ENV['REMOTE_BROWSER_VERSION'] || 'firefox')
                     WebDriver::Driver.remote :server_url           => "http://localhost:8080/",
-                                             :desired_capabilities => WebDriver::Remote::Capabilities.send(ENV['REMOTE_BROWSER_VERSION'] || 'firefox')
+                                             :desired_capabilities => cap
                   when :ie
                     WebDriver::Driver.ie
                   when :chrome
@@ -101,19 +128,10 @@ class Object
   include WebDriver::SpecHelper::Guards
 end
 
-at_exit { driver.quit rescue nil }
+at_exit do
+  if WebDriver::SpecHelper.driver == :remote
+    WebDriver::SpecHelper.remote_server.stop
+  end
+  driver.quit rescue nil
+end
 $stdout.sync = true
-
-# Page = OpenStruct.new(
-#   :drag_and_drop => "#{TEST_URL}/dragAndDropTest.html",
-#   :form          => "#{TEST_URL}/formPage.html",
-#   :iframe        => "#{TEST_URL}/iframes.html",
-#   :javascript    => "#{TEST_URL}/javascriptPage.html",
-#   :nested        => "#{TEST_URL}/nestedElements.html",
-#   :xhtml         => "#{TEST_URL}/xhtmlTest.html"
-# )
-#
-
-# set_trace_func proc { |event, file, line, id, binding, classname|
-#   printf "%8s %s:%-2d %10s %8s\n", event, file, line, id, classname
-# }
