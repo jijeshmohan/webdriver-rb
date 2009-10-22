@@ -67,8 +67,8 @@ module WebDriver
       def launch_binary_windows(*args)
         if Platform.jruby?
           puts "starting chrome: #{args.inspect}"
-          # @process = java.lang.Runtime.getRuntime.exec args.join(" ")
-          @thread = Thread.new { system(args) || raise("unable to launch Chrome: #{args.inspect}") }
+          @process = java.lang.Runtime.getRuntime.exec args.join(" ")
+          # @thread = Thread.new { system(args) || raise("unable to launch Chrome: #{args.inspect}") }
         else
           require "win32/process"
           @pid = Process.create(:app_name        => args.join(" "),
