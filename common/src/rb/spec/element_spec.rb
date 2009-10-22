@@ -78,16 +78,18 @@ describe "Element" do
     size = driver.find_element(:class, "header").size
   end
 
-  it "should drag and drop" do
-    driver.navigate.to Page.drag_and_drop
+  not_compliant_on :browser => :chrome do
+    it "should drag and drop" do
+      driver.navigate.to Page.drag_and_drop
 
-    img1 = driver.find_element(:id, "test1")
-    img2 = driver.find_element(:id, "test2")
+      img1 = driver.find_element(:id, "test1")
+      img2 = driver.find_element(:id, "test2")
 
-    img1.drag_and_drop_by 100, 100
-    img2.drag_and_drop_on(img1)
+      img1.drag_and_drop_by 100, 100
+      img2.drag_and_drop_on(img1)
 
-    img1.location.should == img2.location
+      img1.location.should == img2.location
+    end
   end
 
   it "should get css property" do

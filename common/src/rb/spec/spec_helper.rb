@@ -15,32 +15,64 @@ Page = OpenStruct.new(
   :xhtml         => "#{TEST_URL}/xhtmlTest.html"
 )
 
-# hack to find out what driver we're using
-if $LOAD_PATH.any? { |p| p.include?("remote/client") }
-  $__webdriver__ = :remote
-elsif $LOAD_PATH.any? { |p| p.include?("jobbie") }
-  $__webdriver__ = :ie
-elsif $LOAD_PATH.any? { |p| p.include?("chrome") }
-  $__webdriver__ = :chrome
-else
-  abort "not sure what driver to run specs for"
-end
+module WebDriver::SpecHelper
+  class << self
+    def driver
+      # messy
+      @driver ||= if $LOAD_PATH.any? { |p| p.include?("remote/client") }
+                    :remote
+                  elsif $LOAD_PATH.any? { |p| p.include?("jobbie") }
+                    :ie
+                  elsif $LOAD_PATH.any? { |p| p.include?("chrome") }
+                    :chrome
+                  else
+                    abort "not sure what driver to run specs for"
+                  end
 
-# TODO: fix this mess
-def fix_windows_path(path)
-  return path unless WebDriver::Platform.os == :windows
-  if $__webdriver__ == :ie || ($__webdriver__ == :remote && ENV['REMOTE_BROWSER_VERSION'] == 'internet_explorer')
-    path = path[%r[file://(.*)], 1]
-    path.gsub!("/", '\\')
+    end
 
-    "file://#{path}"
-  else
-    path.sub(%r[file:/{0,2}], "file:///")
+    def browser
+      if driver == :remote
+        (ENV['REMOTE_BROWSER_VERSION'] || :firefox).to_sym
+      else
+        driver
+      end
+    end
+
+    attr_accessor :unguarded
+
+    def unguarded?
+      @unguarded ||= false
+    end
   end
+
+  module Helpers
+    def fix_windows_path(path)
+      return path unless WebDriver::Platform.os == :windows
+
+      if SpecHelper.browser == :ie
+        path = path[%r[file://(.*)], 1]
+        path.gsub!("/", '\\')
+
+        "file://#{path}"
+      else
+        path.sub(%r[file:/{0,2}], "file:///")
+      end
+    end
+  end
+
+  module Guards
+    def not_compliant_on(opts = {}, &blk)
+      yield unless opts.all? { |key, value| WebDriver::SpecHelper.send(key) == value}
+    end
+    alias_method :deviates_on, :not_compliant_on
+  end
+
 end
+
 
 def driver
-  $driver ||= case $__webdriver__
+  $driver ||= case WebDriver::SpecHelper.driver
               when :remote
                 WebDriver::Driver.remote :server_url           => "http://localhost:8080/",
                                          :desired_capabilities => WebDriver::Remote::Capabilities.send(ENV['REMOTE_BROWSER_VERSION'] || 'firefox')
@@ -52,5 +84,12 @@ def driver
 end
 
 at_exit { driver.quit rescue nil }
+$stdout.sync = true
 
-$stdout.sync = true # FIXME
+Spec::Runner.configure do |c|
+  c.include(WebDriver::SpecHelper::Helpers)
+end
+
+class Object
+  include WebDriver::SpecHelper::Guards
+end

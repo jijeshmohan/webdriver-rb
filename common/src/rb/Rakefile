@@ -4,29 +4,30 @@ rescue LoadError
 end
 
 require "spec/rake/spectask"
+require "#{File.dirname(__FILE__)}/lib/webdriver/platform"
 
 namespace :spec do
-  SPEC_OPTS = %w[--format progress]
 
   desc 'Run specs for the IE driver'
   Spec::Rake::SpecTask.new :ie do |t|
-    t.spec_opts = SPEC_OPTS
+    t.spec_opts = %W[--format html:ie-#{WebDriver::Platform.os}.html]
     t.libs      = ["./lib", "../../../jobbie/src/rb/lib"]
     t.ruby_opts = %w[-rubygems] if defined?(Gem)
   end
 
   desc 'Run specs for the Remote driver'
   Spec::Rake::SpecTask.new :remote do |t|
-    t.spec_opts = SPEC_OPTS
+    t.spec_opts = %W[--format html:remote-#{ENV['REMOTE_DRIVER_VERSION'] || 'firefox'}-#{WebDriver::Platform.os}.html]
     t.libs      = ["./lib", "../../../remote/client/src/rb/lib"]
     t.ruby_opts = %w[-rubygems] if defined?(Gem)
   end
 
   desc 'Run specs for the Chrome driver'
   Spec::Rake::SpecTask.new :chrome do |t|
-    t.spec_opts = SPEC_OPTS
+    t.spec_opts = %W[--format html:chrome-#{WebDriver::Platform.os}.html]
     t.libs      = ["./lib", "../../../chrome/src/rb/lib"]
     t.ruby_opts = %w[-rubygems] if defined?(Gem)
   end
 
 end
+
