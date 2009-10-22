@@ -45,7 +45,7 @@ module WebDriver
       #
       # Initializes the bridge with the given server URL.
       #
-      # @param server_url [String] base URL for all commands.  Note that a trailing '/' is very important!
+      # @param server_url [String] base URL for all commands.  FIXME: Note that a trailing '/' is very important!
       #
 
       def initialize(opts = {})

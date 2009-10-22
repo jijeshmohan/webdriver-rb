@@ -26,6 +26,19 @@ module WebDriver::SpecHelper
 
     end
 
+    def environment
+      @environment ||= begin
+        if WebDriver::Platform.jruby?
+          puts "creating InProcessTestEnvironment"
+          env = org.openqa.selenium.environment.InProcessTestEnvironment.new
+        else
+          # env = WebDriver::Support::TestEnvironment.new TODO: use a ruby server for specs?
+        end
+
+        env
+      end
+    end
+
     def browser
       if driver == :remote
         (ENV['REMOTE_BROWSER_VERSION'] || :firefox).to_sym
@@ -42,6 +55,8 @@ module WebDriver::SpecHelper
 
     def remote_server
       @remote_server ||= begin
+        raise "no remote server to run for MRI yet" unless WebDriver::Platform.jruby?
+
         puts "starting remote server"
 
         Dir['remote/common/lib/**/*.jar'].each { |j| require j }
@@ -50,7 +65,7 @@ module WebDriver::SpecHelper
         context.setContextPath("/")
         context.addServlet("org.openqa.selenium.remote.server.DriverServlet", "/*")
 
-        server  = org.mortbay.jetty.Server.new(8080)
+        server  = org.mortbay.jetty.Server.new(6000)
         server.setHandler context
 
         server
@@ -59,19 +74,8 @@ module WebDriver::SpecHelper
   end
 
   module Helpers
-    def environment
-      @@environment ||= begin
-        if WebDriver::Platform.jruby?
-          puts "creating InProcessTestEnvironment"
-          org.openqa.selenium.environment.InProcessTestEnvironment.new
-        else
-          # WebDriver::Support::TestEnvironment.new TODO: ruby server for specs?
-        end
-      end
-    end
-
     def app_server
-      @app_server ||= environment.getAppServer
+      @app_server ||= WebDriver::SpecHelper.environment.getAppServer
     end
 
     def url_for(filename)
@@ -100,7 +104,7 @@ module WebDriver::SpecHelper
                     WebDriver::SpecHelper.remote_server.start
                     sleep 2
                     cap = WebDriver::Remote::Capabilities.send(ENV['REMOTE_BROWSER_VERSION'] || 'firefox')
-                    WebDriver::Driver.remote :server_url           => "http://localhost:8080/",
+                    WebDriver::Driver.remote :server_url           => "http://localhost:6000/",
                                              :desired_capabilities => cap
                   when :ie
                     WebDriver::Driver.ie
@@ -129,9 +133,12 @@ class Object
 end
 
 at_exit do
+  $driver.quit
   if WebDriver::SpecHelper.driver == :remote
+    puts "stopping remote server"
     WebDriver::SpecHelper.remote_server.stop
+    WebDriver::SpecHelper.environment.stop
   end
-  driver.quit rescue nil
 end
+
 $stdout.sync = true
