@@ -393,21 +393,21 @@ task :test_remote_rb => [:test_common, :remote_server] do
   jruby :include => ["common/src/rb/lib", "remote/client/src/rb/lib", "."],
         :require => ["third_party/jruby/json-jruby.jar"],
         :command => "-S spec",
-        :files   => Dir['common/src/rb/spec/**/*spec.rb']
+        :files   => Dir['common/test/rb/spec/**/*spec.rb']
 end
 
-task :test_ie_rb do
+task :test_ie_rb => :test_common do
   jruby :include => ["common/src/rb/lib", "jobbie/src/rb/lib", "."],
         :require => ["third_party/jruby/json-jruby.jar"],
         :command => "-S spec",
-        :files   => Dir['common/src/rb/spec/**/*spec.rb']
+        :files   => Dir['common/test/rb/spec/**/*spec.rb']
 end
 
-task :test_chrome_rb do
+task :test_chrome_rb => :test_common do
   jruby :include => ["common/src/rb/lib", "chrome/src/rb/lib", "."],
         :require => ["third_party/jruby/json-jruby.jar"],
         :command => "-S spec",
-        :files   => Dir['common/src/rb/spec/**/*spec.rb']
+        :files   => Dir['common/test/rb/spec/**/*spec.rb']
 end
 
 task :iphone => [:iphone_server, :iphone_client]
