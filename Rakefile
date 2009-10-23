@@ -390,21 +390,21 @@ task :test_firefox_py => :test_firefox do
 end
 
 task :test_remote_rb => [:test_common, :remote_server] do
-  jruby :include => ["common/src/rb/lib", "remote/client/src/rb/lib", "."],
+  jruby :include => [".", "common/src/rb/lib", "remote/client/src/rb/lib", "common/test/rb/lib"],
         :require => ["third_party/jruby/json-jruby.jar"],
         :command => "-S spec",
         :files   => Dir['common/test/rb/spec/**/*spec.rb']
 end
 
 task :test_ie_rb => :test_common do
-  jruby :include => ["common/src/rb/lib", "jobbie/src/rb/lib", "."],
+  jruby :include => [".", "common/src/rb/lib", "jobbie/src/rb/lib", "common/test/rb/lib"],
         :require => ["third_party/jruby/json-jruby.jar"],
         :command => "-S spec",
         :files   => Dir['common/test/rb/spec/**/*spec.rb']
 end
 
 task :test_chrome_rb => :test_common do
-  jruby :include => ["common/src/rb/lib", "chrome/src/rb/lib", "."],
+  jruby :include => [".", "common/src/rb/lib", "chrome/src/rb/lib", "common/test/rb/lib"],
         :require => ["third_party/jruby/json-jruby.jar"],
         :command => "-S spec",
         :files   => Dir['common/test/rb/spec/**/*spec.rb']
