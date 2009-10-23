@@ -36,7 +36,7 @@ module WebDriver::IE
     attach_function :wdeSubmit,                           [:pointer                                                   ], :int
     attach_function :wdeToggle,                           [:pointer, :pointer                                         ], :int
     attach_function :wdExecuteScript,                     [:pointer, :pointer, :pointer, :pointer                     ], :int
-    # attach_function :wdFreeElement,                       [:pointer                                                   ], :int
+    attach_function :wdeFreeElement,                      [:pointer                                                   ], :int
     attach_function :wdFindElementByClassName,            [:pointer, :pointer, :pointer, :pointer                     ], :int
     attach_function :wdFindElementById,                   [:pointer, :pointer, :pointer, :pointer                     ], :int
     attach_function :wdFindElementByLinkText,             [:pointer, :pointer, :pointer, :pointer                     ], :int

@@ -87,7 +87,8 @@ module WebDriver
           close
         end
 
-        # TODO: ObjectSpace.each_object(WebDriver::Element) { |e| e.finalize }
+        # hack
+        ObjectSpace.each_object(WebDriver::Element) { |e| finalize e.ref if e.bridge == self }
       ensure
         Lib.wdFreeDriver(@driver_pointer)
         @driver_pointer = nil
@@ -253,7 +254,7 @@ module WebDriver
 
       def findElementsByTagName(parent, tag_name)
         create_element_collection do |raw_elements|
-          check_error_code Lib.wdFindElementsByTagName(@driver_pointer, parent, wstring_ptr(tag_name), raw_element),
+          check_error_code Lib.wdFindElementsByTagName(@driver_pointer, parent, wstring_ptr(tag_name), raw_elements),
                            "Unable to find elements by tag name using #{tag_name.inspect}"
         end
       end
@@ -427,11 +428,8 @@ module WebDriver
       end
 
       def finalize(element_pointer)
-        # FIXME: ouch
-
-        p :finalizing => element_pointer
-        check_error_code Lib.wdFreeElement(element_pointer),
-                         "Unable to finalize #{self}"
+        check_error_code Lib.wdeFreeElement(element_pointer),
+                         "Unable to finalize #{element_pointer} for #{self}"
       end
 
       private
