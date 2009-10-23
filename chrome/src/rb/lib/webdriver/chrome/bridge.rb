@@ -5,7 +5,7 @@ module WebDriver
       def initialize
         @executor = CommandExecutor.new
 
-        @launcher = Launcher.new
+        @launcher = Launcher.launcher
         @launcher.launch
         # TODO: @launcher.kill
       end
