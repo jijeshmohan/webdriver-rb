@@ -54,28 +54,37 @@ module WebDriver
       end
 
       def launch_binary(*args)
+        puts "starting chrome: #{args.inspect}"
+
+        if Platform.jruby?
+          launch_binary_jruby(*args)
+        end
+
         case Platform.os
         when :windows
           launch_binary_windows(*args)
         when :unix, :macosx
-          @pid = fork { exec(*args) }
+          launch_binary_unix
         else
           raise "unknown platform"
         end
       end
 
       def launch_binary_windows(*args)
-        if Platform.jruby?
-          puts "starting chrome: #{args.inspect}"
-          @process = java.lang.Runtime.getRuntime.exec args.join(" ")
-          # @thread = Thread.new { system(args) || raise("unable to launch Chrome: #{args.inspect}") }
-        else
-          require "win32/process"
-          @pid = Process.create(:app_name        => args.join(" "),
-                                :process_inherit => true,
-                                :thread_inherit  => true,
-                                :inherit         => true).process_id
-        end
+        require "win32/process"
+        @pid = Process.create(:app_name        => args.join(" "),
+                              :process_inherit => true,
+                              :thread_inherit  => true,
+                              :inherit         => true).process_id
+      end
+
+      def launch_binary_jruby(*args)
+        @process = java.lang.Runtime.getRuntime.exec args.join(" ")
+        # @thread = Thread.new { system(args) || raise("unable to launch Chrome: #{args.inspect}") }
+      end
+
+      def launch_binary_unix(*args)
+        @pid = fork { exec(*args) }
       end
 
       def dll_path
