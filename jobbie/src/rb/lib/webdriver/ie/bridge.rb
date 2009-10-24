@@ -145,18 +145,42 @@ module WebDriver
       #
 
       def addCookie(opts)
-        raise NotImplementedError
-        check_error_code Lib.wdAddCookie(@driver_pointer, nil),
+        cookie_string  = "#{opts[:name]}=#{opts[:value]}; "
+        cookie_string << "path=#{opts[:path]}; "                  if opts[:path] && !opts[:path].empty?
+        cookie_string << "domain=#{opts[:domain][/^(.+?):/, 1]};" if opts[:domain] && !opts[:domain].empty?
+
+        check_error_code Lib.wdAddCookie(@driver_pointer, wstring_ptr(cookie_string)),
                          "Unable to add cookie"
       end
 
+      def getAllCookies
+        str = create_string do |wrapper|
+          check_error_code Lib.wdGetCookies(@driver_pointer, wrapper), "Unable to get cookies"
+        end
+
+        p :cookie_string => str
+
+        str.split("; ").map do |cookie_string|
+          parts = cookie_string.split("=")
+          next unless parts.size == 2
+
+          {
+            'name'    => parts[0],
+            'value'   => parts[1],
+            'domain'  => getCurrentUrl,
+            'path'    => "",
+            'expires' => nil,
+            'secure'  => false
+          }
+        end.compact
+      end
+
       def deleteCookie(name)
-        raise NotImplementedError
-        # missing from IE driver
+        raise NotImplementedError, "missing from IE driver"
       end
 
       def deleteAllCookies
-        raise NotImplementedError
+        raise NotImplementedError, "missing from IE driver"
       end
 
       def setSpeed(speed)

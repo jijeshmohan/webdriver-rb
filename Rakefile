@@ -399,7 +399,7 @@ end
 task :test_ie_rb => :test_common do
   jruby :include => [".", "common/src/rb/lib", "jobbie/src/rb/lib", "common/test/rb/lib"],
         :require => ["third_party/jruby/json-jruby.jar"],
-        :command => "-S spec",
+        :command => "-X+O -S spec", # needs ObjectSpace
         :files   => Dir['common/test/rb/spec/**/*spec.rb']
 end
 
