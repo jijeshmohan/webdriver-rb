@@ -28,15 +28,12 @@ module WebDriver
 
       def driver_instance
           @driver_instance ||= begin
-            case driver
-            when :remote
+            if driver == :remote
               cap = WebDriver::Remote::Capabilities.send(ENV['REMOTE_BROWSER_VERSION'] || 'firefox')
-              WebDriver::Driver.remote :server_url           => "http://localhost:6000/",
-                                       :desired_capabilities => cap
-            when :ie
-              WebDriver::Driver.ie
-            when :chrome
-              WebDriver::Driver.chrome
+              WebDriver::Driver.for :remote, :server_url           => "http://localhost:6000/",
+                                              :desired_capabilities => cap
+            else
+              WebDriver::Driver.for driver
             end
           end
       end

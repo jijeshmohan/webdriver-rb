@@ -5,17 +5,15 @@ module WebDriver
     attr_reader :bridge
 
     class << self
-      def remote(*args)
-        new WebDriver::Remote::Bridge.new(*args)
-      end
-
-      def internet_explorer(*args)
-        new WebDriver::IE::Bridge.new(*args)
-      end
-      alias_method :ie, :internet_explorer
-
-      def chrome(*args)
-        new WebDriver::Chrome::Bridge.new(*args)
+      def for(driver, *args)
+        case driver
+        when :ie, :internet_explorer
+          new WebDriver::IE::Bridge.new(*args)
+        when :remote
+          new WebDriver::Remote::Bridge.new(*args)
+        when :chrome
+          new WebDriver::Chrome::Bridge.new(*args)
+        end
       end
     end
 
