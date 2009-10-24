@@ -30,7 +30,6 @@ module WebDriver
           @driver_instance ||= begin
             case driver
             when :remote
-              remote_server.start
               cap = WebDriver::Remote::Capabilities.send(ENV['REMOTE_BROWSER_VERSION'] || 'firefox')
               WebDriver::Driver.remote :server_url           => "http://localhost:6000/",
                                        :desired_capabilities => cap
@@ -51,10 +50,7 @@ module WebDriver
       end
 
       def quit
-        driver_instance.quit
         app_server.stop
-        remote_server.stop if driver == :remote
-
         @driver_instance = @app_server = @remote_server = nil
       end
 

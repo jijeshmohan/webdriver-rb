@@ -28,6 +28,7 @@ module WebDriver
 
       def quit
         super
+        @in_process_test_environment.stop
         @in_process_test_environment = nil
       end
 

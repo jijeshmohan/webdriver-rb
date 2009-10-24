@@ -390,10 +390,11 @@ task :test_firefox_py => :test_firefox do
 end
 
 task :test_remote_rb => [:test_common, :remote_server] do
-  jruby :include => [".", "common/src/rb/lib", "remote/client/src/rb/lib", "common/test/rb/lib"],
-        :require => ["third_party/jruby/json-jruby.jar"],
-        :command => "-S spec",
-        :files   => Dir['common/test/rb/spec/**/*spec.rb']
+  jruby :include  => [".", "common/src/rb/lib", "remote/client/src/rb/lib", "common/test/rb/lib"],
+        :require  => ["third_party/jruby/json-jruby.jar"],
+        :command  => "-S spec",
+        :files    => Dir['common/test/rb/spec/**/*spec.rb']
+        # :headless => true
 end
 
 task :test_ie_rb => :test_common do
