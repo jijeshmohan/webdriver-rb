@@ -101,73 +101,70 @@ describe "Driver" do
     end
   end
 
-  not_compliant_on :browser => :chrome do
-    describe "#execute_script" do
-      it "should return strings" do
-        driver.navigate.to url_for("xhtmlTest.html")
-        driver.execute_script("return document.title;").should == "XHTML Test Page"
-      end
-
-      it "should return numbers" do
-        driver.navigate.to url_for("xhtmlTest.html")
-        driver.execute_script("return document.title.length;").should == "XHTML Test Page".length
-      end
-
-      it "should return elements" do
-        driver.navigate.to url_for("xhtmlTest.html")
-        element = driver.execute_script("return document.getElementById('id1');")
-        element.should be_kind_of(WebDriver::Element)
-        element.text.should == "Foo"
-      end
-
-      it "should return booleans" do
-        driver.navigate.to url_for("xhtmlTest.html")
-        driver.execute_script("return true;").should == true
-      end
-
-      it "should raise if the script is bad" do
-        driver.navigate.to url_for("xhtmlTest.html")
-        lambda { driver.execute_script("return squiggle();") }.should raise_error
-      end
-
-      it "should be able to call functions on the page" do
-        driver.navigate.to url_for("javascriptPage.html")
-        driver.execute_script("displayMessage('I like cheese');")
-        driver.find_element(:id, "result").text.strip.should == "I like cheese"
-      end
-
-      it "should be able to pass string arguments" do
-        driver.navigate.to url_for("javascriptPage.html")
-        driver.execute_script("return arguments[0] == 'fish' ? 'fish' : 'not fish';", "fish").should == "fish"
-      end
-
-      it "should be able to pass boolean arguments" do
-        driver.navigate.to url_for("javascriptPage.html")
-        driver.execute_script("return arguments[0] == true;", true).should == true
-      end
-
-      it "should be able to pass numeric arguments" do
-        driver.navigate.to url_for("javascriptPage.html")
-        driver.execute_script("return arguments[0] == 1 ? 1 : 0;", 1).should == 1
-      end
-
-      it "should be able to pass element arguments" do
-        driver.navigate.to url_for("javascriptPage.html")
-        button = driver.find_element(:id, "plainButton")
-        driver.execute_script("arguments[0]['flibble'] = arguments[0].getAttribute('id'); return arguments[0]['flibble'];", button).should == "plainButton"
-      end
-
-      it "should raise an exception if arguments are invalid" do
-        driver.navigate.to url_for("javascriptPage.html")
-        lambda { driver.execute_script("arguments[0]", Object.new) }.should raise_error(TypeError, /Parameter is not of recognized type:/)
-      end
-
-      it "should be able to pass in multiple arguments" do
-        driver.navigate.to url_for("javascriptPage.html")
-        driver.execute_script("return arguments[0] + arguments[1];", "one", "two").should == "onetwo"
-      end
+  describe "#execute_script" do
+    it "should return strings" do
+      driver.navigate.to url_for("xhtmlTest.html")
+      driver.execute_script("return document.title;").should == "XHTML Test Page"
     end
 
+    it "should return numbers" do
+      driver.navigate.to url_for("xhtmlTest.html")
+      driver.execute_script("return document.title.length;").should == "XHTML Test Page".length
+    end
+
+    it "should return elements" do
+      driver.navigate.to url_for("xhtmlTest.html")
+      element = driver.execute_script("return document.getElementById('id1');")
+      element.should be_kind_of(WebDriver::Element)
+      element.text.should == "Foo"
+    end
+
+    it "should return booleans" do
+      driver.navigate.to url_for("xhtmlTest.html")
+      driver.execute_script("return true;").should == true
+    end
+
+    it "should raise if the script is bad" do
+      driver.navigate.to url_for("xhtmlTest.html")
+      lambda { driver.execute_script("return squiggle();") }.should raise_error
+    end
+
+    it "should be able to call functions on the page" do
+      driver.navigate.to url_for("javascriptPage.html")
+      driver.execute_script("displayMessage('I like cheese');")
+      driver.find_element(:id, "result").text.strip.should == "I like cheese"
+    end
+
+    it "should be able to pass string arguments" do
+      driver.navigate.to url_for("javascriptPage.html")
+      driver.execute_script("return arguments[0] == 'fish' ? 'fish' : 'not fish';", "fish").should == "fish"
+    end
+
+    it "should be able to pass boolean arguments" do
+      driver.navigate.to url_for("javascriptPage.html")
+      driver.execute_script("return arguments[0] == true;", true).should == true
+    end
+
+    it "should be able to pass numeric arguments" do
+      driver.navigate.to url_for("javascriptPage.html")
+      driver.execute_script("return arguments[0] == 1 ? 1 : 0;", 1).should == 1
+    end
+
+    it "should be able to pass element arguments" do
+      driver.navigate.to url_for("javascriptPage.html")
+      button = driver.find_element(:id, "plainButton")
+      driver.execute_script("arguments[0]['flibble'] = arguments[0].getAttribute('id'); return arguments[0]['flibble'];", button).should == "plainButton"
+    end
+
+    it "should raise an exception if arguments are invalid" do
+      driver.navigate.to url_for("javascriptPage.html")
+      lambda { driver.execute_script("arguments[0]", Object.new) }.should raise_error(TypeError, /Parameter is not of recognized type:/)
+    end
+
+    it "should be able to pass in multiple arguments" do
+      driver.navigate.to url_for("javascriptPage.html")
+      driver.execute_script("return arguments[0] + arguments[1];", "one", "two").should == "onetwo"
+    end
   end
 end
 

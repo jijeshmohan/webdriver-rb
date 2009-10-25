@@ -8,6 +8,7 @@ require "webdriver/target_locator"
 require "webdriver/navigation"
 require "webdriver/options"
 require "webdriver/find"
+require "webdriver/bridge_helper"
 require "webdriver/driver"
 require "webdriver/element"
 
@@ -32,7 +33,7 @@ rescue LoadError => e
   abort <<-END
        #{e.message}
 
-       You need to install the json gem:
+       You need to require rubygems / install the json gem:
            #{msg}
   END
 end

@@ -1,6 +1,7 @@
 module WebDriver
   module Chrome
     class Bridge
+      include BridgeHelper
 
       def initialize
         @executor = CommandExecutor.new
@@ -71,10 +72,13 @@ module WebDriver
       end
 
       def executeScript(script, *args)
-        raise NotImplementedError
-        execute :request => 'executeScript',
-                :script  => script,
-                :args    => args
+        typed_args = args.map { |e| wrap_script_argument(e) }
+
+        resp = execute :request => 'executeScript',
+                       :script  => script,
+                       :args    => typed_args
+
+        unwrap_script_argument resp
       end
 
       def addCookie(cookie)
@@ -308,12 +312,6 @@ module WebDriver
       def raw_execute(command)
         @executor.execute command
       end
-
-      # TODO: shared with ff bridge
-      def element_id_from(arr)
-        arr.to_s.split("/").last
-      end
-
 
     end # Bridge
   end # Chrome

@@ -1,6 +1,5 @@
 module WebDriver
   module Remote
-
     DEBUG = $VERBOSE == true
 
     COMMANDS = {}
@@ -13,6 +12,7 @@ module WebDriver
 
     class Bridge
       include Find
+      include BridgeHelper
 
       DEFAULT_OPTIONS = {
         :server_url           => "http://localhost:7055/",
@@ -141,31 +141,10 @@ module WebDriver
       def executeScript(script, *args)
         raise UnsupportedOperationError, "underlying webdriver instace does not support javascript" unless capabilities.javascript?
 
-        typed_args = args.map do |arg|
-          case arg
-          when Integer, Float
-            { :type => "NUMBER", :value => arg }
-          when TrueClass, FalseClass, NilClass
-            { :type => "BOOLEAN", :value => !!arg }
-          when Element
-            { :type => "ELEMENT", :value => arg.ref }
-          when String
-            { :type => "STRING", :value => arg.to_s }
-          else
-            raise TypeError, "Parameter is not of recognized type: #{arg.inspect}:#{arg.class}"
-          end
-        end
+        typed_args = args.map { |arg| wrap_script_argument(arg) }
+        response   = raw_execute :executeScript, {}, script, typed_args
 
-        response = raw_execute :executeScript, {}, script, typed_args
-
-        # un-type the result value
-        result = response['value']
-        case result["type"]
-        when "ELEMENT"
-          Element.new(self, element_id_from(result["value"]))
-        else
-          result["value"]
-        end
+        unwrap_script_argument response['value']
       end
 
       def addCookie(cookie)
@@ -383,11 +362,6 @@ module WebDriver
         puts "-> #{verb.to_s.upcase} #{path}" if DEBUG
         http.call verb, path, *args
       end
-
-      def element_id_from(arr)
-        arr.to_s.split("/").last
-      end
-
 
     end # Bridge
   end # Remote

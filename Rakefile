@@ -411,6 +411,22 @@ task :test_chrome_rb => :test_common do
         :files   => Dir['common/test/rb/spec/**/*spec.rb']
 end
 
+task :test_remote_chrome_rb => :test_common do
+  ENV['REMOTE_BROWSER_VERSION'] = 'chrome'
+  Rake::Task[:test_remote_rb].invoke # bad
+end
+
+task :test_remote_firefox_rb do
+  ENV['REMOTE_BROWSER_VERSION'] = 'firefox'
+  Rake::Task[:test_remote_rb].invoke # bad
+end
+
+task :test_remote_ie_rb do
+  ENV['REMOTE_BROWSER_VERSION'] = 'internet_explorer'
+  Rake::Task[:test_remote_rb].invoke # bad
+end
+
+
 task :iphone => [:iphone_server, :iphone_client]
 
 # Place-holder tasks

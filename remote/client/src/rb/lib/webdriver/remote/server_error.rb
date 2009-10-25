@@ -3,7 +3,8 @@ module WebDriver
     class ServerError < StandardError
 
       def initialize(response)
-        @response = response
+        return super(response) if response.kind_of?(String)
+
         if response.error
           super(response.error["message"])
         else
@@ -11,9 +12,6 @@ module WebDriver
         end
       end
 
-      # def to_s
-      #   self.class.name + ": " + @data["value"]["class"] + ": " + @data["value"]["message"]
-      # end
     end
 
     REMOTE_EXCEPTIONS = {
