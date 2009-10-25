@@ -309,7 +309,7 @@ module WebDriver
         @executor.execute command
       end
 
-      # hack!
+      # TODO: shared with ff bridge
       def element_id_from(arr)
         arr.to_s.split("/").last
       end

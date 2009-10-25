@@ -6,7 +6,7 @@ module WebDriver
         @host = host
         @port = port
       end
-      
+
       def connect(timeout = 20)
         Timeout.timeout(timeout) {
           loop do
@@ -23,7 +23,7 @@ module WebDriver
       def new_socket
         @socket = TCPSocket.new(@host, @port)
         @socket.sync = true
-        
+
         @socket
       end
 
@@ -40,11 +40,11 @@ Content-Length: #{str.length}
 #{str}
 HTTP
         p :sending => str
-        
+
         @socket.write str
         @socket.flush
       end
-      
+
       def quit
         send_string({'commandName' => 'quit', 'context' => nil}.to_json)
         read_response
@@ -57,26 +57,28 @@ HTTP
       end
 
       def read_response
+        raise Error::WebDriverError, "unexpected socket closed" if @socket.closed?
         raise Error::WebDriverError, "unexpected eof" if @socket.eof?
+
         line = @socket.gets
 
         count = 0
         parts = line.split(":", 2)
-        
+
         if parts.first == "Length"
           count = Integer(parts.last.strip)
         end
-        
+
         until line.empty?
           line = @socket.gets.chomp
         end
-        
+
         json_string = @socket.recv(count)
         JSON.parse json_string
-        
+
         # resp     = ""
         # received = ""
-        # 
+        #
         # p :reading
         # until resp.include?("\n\n")
         #   received = @socket.recv 1
@@ -84,12 +86,12 @@ HTTP
         #     resp += received
         #   end
         # end
-        # 
+        #
         # p :read => resp
-        # 
+        #
         # length      = resp.split(":")[1].lstrip!.to_i
         # json_string = @socket.recv length
-        # 
+        #
         # JSON.parse json_string
       end
 
