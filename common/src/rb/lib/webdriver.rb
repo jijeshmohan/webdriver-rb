@@ -15,9 +15,10 @@ module WebDriver
   Point     = Struct.new(:x, :y)
   Dimension = Struct.new(:width, :heigth)
 
-  autoload :IE,     'webdriver/ie'
-  autoload :Remote, 'webdriver/remote'
-  autoload :Chrome, 'webdriver/chrome'
+  autoload :IE,      'webdriver/ie'
+  autoload :Remote,  'webdriver/remote'
+  autoload :Chrome,  'webdriver/chrome'
+  autoload :Firefox, 'webdriver/firefox'
 end
 
 Thread.abort_on_exception = true

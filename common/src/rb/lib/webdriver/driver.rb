@@ -13,6 +13,10 @@ module WebDriver
           new WebDriver::Remote::Bridge.new(*args)
         when :chrome
           new WebDriver::Chrome::Bridge.new(*args)
+        when :firefox, :ff
+          new WebDriver::Firefox::Bridge.new(*args)
+        else
+          raise ArgumentError, "unknown driver: #{driver.inspect}"
         end
       end
     end
