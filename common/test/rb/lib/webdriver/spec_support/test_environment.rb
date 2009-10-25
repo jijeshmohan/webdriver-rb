@@ -12,6 +12,8 @@ module WebDriver
                       :ie
                     elsif $LOAD_PATH.any? { |p| p.include?("chrome") }
                       :chrome
+                    elsif $LOAD_PATH.any? { |p| p.include?("firefox") }
+                      :firefox
                     else
                       raise "not sure what driver to run specs for"
                     end
@@ -30,7 +32,7 @@ module WebDriver
           @driver_instance ||= begin
             if driver == :remote
               cap = WebDriver::Remote::Capabilities.send(ENV['REMOTE_BROWSER_VERSION'] || 'firefox')
-              WebDriver::Driver.for :remote, :server_url           => "http://localhost:6000/",
+              WebDriver::Driver.for :remote,  :server_url           => "http://localhost:6000/",
                                               :desired_capabilities => cap
             else
               WebDriver::Driver.for driver

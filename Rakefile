@@ -411,6 +411,13 @@ task :test_chrome_rb => :test_common do
         :files   => Dir['common/test/rb/spec/**/*spec.rb']
 end
 
+task :test_firefox_rb => :test_common do
+  jruby :include => [".", "common/src/rb/lib", "firefox/src/rb/lib", "common/test/rb/lib"],
+        :require => ["third_party/jruby/json-jruby.jar"],
+        :command => "-S spec",
+        :files   => Dir['common/test/rb/spec/**/*spec.rb']
+end
+
 task :test_remote_chrome_rb => :test_common do
   ENV['REMOTE_BROWSER_VERSION'] = 'chrome'
   Rake::Task[:test_remote_rb].invoke # bad

@@ -5,10 +5,10 @@ module WebDriver
     # Specification of the desired and/or actual capabilities of the browser that the
     # server is being asked to create.
     #
-    # @option browser_name [String] required browser name
-    # @option version [String] required browser version number
-    # @option platform [Symbol] one of :any, :win, :mac, or :x
-    # @option javascript_enabled [Boolean] should the test run with javascript enabled?
+    # @option browser_name        [String] required browser name
+    # @option version             [String] required browser version number
+    # @option platform            [Symbol] one of :any, :win, :mac, or :x
+    # @option javascript_enabled  [Boolean] should the test run with javascript enabled?
     #
     # @api public
     #
@@ -18,7 +18,9 @@ module WebDriver
       attr_accessor :browser_name, :version, :platform, :javascript_enabled
       alias_method :javascript?, :javascript_enabled
 
+      #
       # Convenience methods for the common choices.
+      #
 
       class << self
         def firefox(opts = {})
